@@ -1,0 +1,420 @@
+/* pages/statistics/statistics.wxss */
+
+/* 时间选择器 */
+.time-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.time-tabs {
+  display: flex;
+  background-color: #f0f0f0;
+  border-radius: 8rpx;
+  padding: 4rpx;
+}
+
+.time-tab {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  color: #666666;
+  border-radius: 6rpx;
+  transition: all 0.3s ease;
+}
+
+.time-tab.active {
+  background-color: #4CAF50;
+  color: #ffffff;
+}
+
+.time-picker {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  border-radius: 8rpx;
+}
+
+.time-picker:active {
+  background-color: #f8f8f8;
+}
+
+.time-text {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-right: 8rpx;
+}
+
+.time-arrow {
+  font-size: 20rpx;
+  color: #999999;
+}
+
+/* 总览卡片 */
+.overview-card {
+  margin-bottom: 20rpx;
+}
+
+.overview-content {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+}
+
+.overview-item {
+  text-align: center;
+  flex: 1;
+}
+
+.overview-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+}
+
+.overview-value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+/* 图表切换 */
+.chart-tabs {
+  display: flex;
+  background-color: #f0f0f0;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.chart-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #666666;
+  transition: all 0.3s ease;
+}
+
+.chart-tab.active {
+  background-color: #ffffff;
+  color: #4CAF50;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 收支类型切换 */
+.type-tabs {
+  display: flex;
+  background-color: #f0f0f0;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.type-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #666666;
+  transition: all 0.3s ease;
+}
+
+.type-tab.active {
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.type-tab.active.expense {
+  color: #f44336;
+}
+
+.type-tab.active.income {
+  color: #4CAF50;
+}
+
+/* 图表容器 */
+.chart-container {
+  position: relative;
+  height: 500rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-chart,
+.line-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.no-data-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 分类列表 */
+.category-list {
+  margin-bottom: 20rpx;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.total-amount {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.category-icon {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #ffffff;
+  margin-right: 20rpx;
+}
+
+.category-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-name {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.category-count {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.category-amount {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.percentage {
+  font-size: 22rpx;
+  color: #999999;
+  margin-top: 8rpx;
+}
+
+/* 趋势列表 */
+.trend-list {
+  margin-bottom: 20rpx;
+}
+
+.trend-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.trend-item:last-child {
+  border-bottom: none;
+}
+
+.trend-period {
+  width: 120rpx;
+  flex-shrink: 0;
+}
+
+.period-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.trend-amounts {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.trend-amount {
+  text-align: center;
+  flex: 1;
+}
+
+.amount-label {
+  display: block;
+  font-size: 22rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+/* 预算对比 */
+.budget-comparison {
+  margin-bottom: 20rpx;
+}
+
+.budget-comparison {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #666666;
+  margin-bottom: 16rpx;
+}
+
+.card-title{
+  margin-bottom: 20px;
+}
+
+.budget-item {
+  margin-bottom: 30rpx;
+}
+
+.budget-item:last-child {
+  margin-bottom: 0;
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.budget-category {
+  display: flex;
+  align-items: center;
+}
+
+.budget-amounts {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+}
+
+.used-amount {
+  color: #333333;
+  font-weight: 500;
+}
+
+.budget-separator {
+  color: #cccccc;
+  margin: 0 8rpx;
+}
+
+.total-amount {
+  color: #999999;
+}
+
+.budget-progress {
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12rpx;
+  background-color: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-right: 20rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.over-budget {
+  background-color: #f44336;
+}
+
+.progress-text {
+  font-size: 22rpx;
+  color: #666666;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+.progress-text.over-budget {
+  color: #f44336;
+}
+
+/* 时间选择弹窗 */
+.time-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-picker-modal .modal-content {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  width: 90%;
+  max-width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.time-picker-view {
+  height: 400rpx;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  font-size: 28rpx;
+  color: #333333;
+}

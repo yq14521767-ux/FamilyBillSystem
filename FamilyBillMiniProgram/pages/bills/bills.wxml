@@ -1,0 +1,190 @@
+<!--pages/bills/bills.wxml-->
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item" bindtap="showDatePicker">
+      <text class="filter-text">{{timeText}}</text>
+      <text class="filter-arrow">▼</text>
+    </view>
+    <view class="filter-item" bindtap="showCategoryFilter">
+      <text class="filter-text">{{selectedCategoryName}}</text>
+      <text class="filter-arrow">▼</text>
+    </view>
+    <view class="filter-item" bindtap="showTypeFilter">
+      <text class="filter-text">{{selectedTypeName}}</text>
+      <text class="filter-arrow">▼</text>
+    </view>
+  </view>
+
+  <!-- 家庭选择 -->
+  <view class="family-selector" wx:if="{{families.length > 0}}">
+    <picker mode="selector" range="{{families}}" range-key="name" value="{{selectedFamilyIndex}}" bindchange="onFamilyChange">
+      <view class="family-display">
+        <text class="family-label">家庭</text>
+        <text class="family-name">{{selectedFamilyName}}</text>
+        <text class="family-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 月度统计 -->
+  <view class="month-stats card">
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-label">收入</text>
+        <text class="stat-value amount-income">+{{monthStats.income}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">支出</text>
+        <text class="stat-value amount-expense">-{{monthStats.expense}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">结余</text>
+        <text class="stat-value {{monthStats.balance >= 0 ? 'amount-income' : 'amount-expense'}}">{{monthStats.balance >= 0 ? '+' : ''}}{{monthStats.balance}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 账单列表 -->
+  <view class="bills-container">
+    <view class="bill-group" wx:for="{{billGroups}}" wx:key="date">
+      <view class="group-header">
+        <text class="group-date">{{item.date}}</text>
+        <text class="group-amount {{item.totalAmount >= 0 ? 'amount-income' : 'amount-expense'}}">
+          {{item.totalAmount >= 0 ? '+' : ''}}{{item.totalAmount}}
+        </text>
+      </view>
+      
+      <view class="bill-list">
+        <view class="bill-item" wx:for="{{item.bills}}" wx:key="id" wx:for-item="bill" bindtap="viewBillDetail" data-bill="{{bill}}">
+          <view class="bill-icon" style="background-color: {{bill.categoryColor}}">
+            {{bill.categoryIcon || bill.categoryName.charAt(0)}}
+          </view>
+          <view class="bill-content">
+            <text class="bill-category">{{bill.categoryName}}</text>
+            <text class="bill-description" wx:if="{{bill.description}}">{{bill.description}}</text>
+          </view>
+          <view class="bill-amount">
+            <text class="amount {{bill.categoryType === 1 ? 'amount-income' : 'amount-expense'}}">
+              {{bill.categoryType === 1 ? '+' : '-'}}{{bill.amount}}
+            </text>
+          </view>
+          <view class="bill-actions" catchtap="showBillActions" data-bill="{{bill}}">
+            <text class="action-icon">⋯</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && !loading}}">
+      <button class="btn btn-secondary btn-small" bindtap="loadMore">加载更多</button>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{billGroups.length === 0 && !loading}}">
+      <view class="empty-state-icon">📝</view>
+      <text class="empty-state-text">暂无账单记录</text>
+      <button class="btn btn-primary btn-small" bindtap="addBill">立即记账</button>
+    </view>
+  </view>
+</view>
+
+<!-- 悬浮添加按钮 -->
+<view class="fab" bindtap="addBill">
+  <text class="fab-icon">+</text>
+</view>
+
+<!-- 日期选择弹窗 -->
+<view class="date-picker-modal" wx:if="{{showDatePicker}}">
+  <view class="modal-mask" bindtap="hideDatePicker"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择月份</text>
+      <text class="modal-close" bindtap="hideDatePicker">×</text>
+    </view>
+    <picker-view class="date-picker" value="{{datePickerValue}}" bindchange="onDatePickerChange">
+      <picker-view-column>
+        <view wx:for="{{years}}" wx:key="*this" class="picker-item">{{item}}年</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{months}}" wx:key="*this" class="picker-item">{{item}}月</view>
+      </picker-view-column>
+    </picker-view>
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideDatePicker">取消</button>
+      <button class="btn btn-primary" bindtap="confirmDatePicker">确定</button>
+    </view>
+  </view>
+</view>
+
+<!-- 分类筛选弹窗 -->
+<view class="category-filter-modal" wx:if="{{showCategoryFilter}}">
+  <view class="modal-mask" bindtap="hideCategoryFilter"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择分类</text>
+      <text class="modal-close" bindtap="hideCategoryFilter">×</text>
+    </view>
+    <view class="modal-body">
+      <view class="category-list">
+        <view class="category-item {{selectedCategoryId === null ? 'selected' : ''}}" bindtap="selectCategoryFilter" data-id="{{null}}">
+          <text class="category-name">全部分类</text>
+        </view>
+        <view class="category-item {{selectedCategoryId === item.id ? 'selected' : ''}}" 
+              wx:for="{{categories}}" wx:key="id" 
+              bindtap="selectCategoryFilter" data-id="{{item.id}}" data-name="{{item.name}}">
+          <view class="category-icon" style="background-color: {{item.color}}">
+            {{item.icon || item.name.charAt(0)}}
+          </view>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 类型筛选弹窗 -->
+<view class="type-filter-modal" wx:if="{{showTypeFilter}}">
+  <view class="modal-mask" bindtap="hideTypeFilter"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择类型</text>
+      <text class="modal-close" bindtap="hideTypeFilter">×</text>
+    </view>
+    <view class="modal-body">
+      <view class="type-list">
+        <view class="type-item {{selectedType === null ? 'selected' : ''}}" bindtap="selectTypeFilter" data-type="{{null}}">
+          <text class="type-name">全部</text>
+        </view>
+        <view class="type-item {{selectedType === 1 ? 'selected' : ''}}" bindtap="selectTypeFilter" data-type="{{1}}">
+          <text class="type-name">收入</text>
+        </view>
+        <view class="type-item {{selectedType === 2 ? 'selected' : ''}}" bindtap="selectTypeFilter" data-type="{{2}}">
+          <text class="type-name">支出</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 账单操作弹窗 -->
+<view class="bill-actions-modal" wx:if="{{showBillActions}}">
+  <view class="modal-mask" bindtap="hideBillActions"></view>
+  <view class="actions-content">
+    <view class="action-item" bindtap="editBill">
+      <text class="action-text">编辑</text>
+    </view>
+    <view class="action-item danger" bindtap="deleteBill">
+      <text class="action-text">删除</text>
+    </view>
+    <view class="action-item" bindtap="hideBillActions">
+      <text class="action-text">取消</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,46 @@
+/* pages/edit-family/edit-family.wxss */
+
+.container {
+  padding: 24rpx;
+}
+
+.form-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+}
+
+.input {
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  background-color: #f7f8fa;
+}
+
+.form-item-textarea .textarea {
+  min-height: 160rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  background-color: #f7f8fa;
+}
+
+.footer {
+  margin-top: 40rpx;
+}
+
+.footer .btn {
+  width: 100%;
+}

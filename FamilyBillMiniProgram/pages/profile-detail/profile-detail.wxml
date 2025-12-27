@@ -1,0 +1,44 @@
+<!-- pages/profile-detail/profile-detail.wxml -->
+<view class="container">
+  <view class="card user-card">
+    <view class="user-header">
+      <image 
+        class="user-avatar" 
+        src="{{user.avatarDisplayUrl || '/images/user.png'}}" 
+        mode="aspectFill"
+      ></image>
+      <view class="user-main">
+        <text class="user-name">{{user.nickname || (user.email ? user.email.split('@')[0] : '用户')}}</text>
+        <text class="user-email" wx:if="{{user.email}}">{{user.email}}</text>
+        <text class="user-status">账号状态：{{statusText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card info-card">
+    <view class="info-item">
+      <text class="label">手机号</text>
+      <text class="value">{{user.phone || '未设置'}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">性别</text>
+      <text class="value">{{genderText}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">创建时间</text>
+      <text class="value">{{createdAtText}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">更新时间</text>
+      <text class="value">{{updatedAtText}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">最后登录</text>
+      <text class="value">{{lastLoginAtText}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">登录次数</text>
+      <text class="value">{{user.loginCount || 0}}</text>
+    </view>
+  </view>
+</view>

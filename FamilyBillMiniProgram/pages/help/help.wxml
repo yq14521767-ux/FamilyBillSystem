@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="card">
+    <view class="card-title">常见问题</view>
+    <view class="faq-item" wx:for="{{faqs}}" wx:key="id">
+      <view class="faq-question" bindtap="toggleFaq" data-id="{{item.id}}">
+        <text class="q-prefix">Q{{item.id}}.</text>
+        <text class="q-text">{{item.question}}</text>
+        <text class="arrow">{{item.open ? '︿' : '﹀'}}</text>
+      </view>
+      <view class="faq-answer" wx:if="{{item.open}}">
+        <text class="a-prefix">A：</text>
+        <text class="a-text">{{item.answer}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">联系客服</view>
+    <view class="contact-item">
+      <text class="contact-label">反馈邮箱：</text>
+      <text class="contact-value">1767254800@qq.com</text>
+    </view>
+    <view class="contact-item">
+      <text class="contact-label">反馈说明：</text>
+      <text class="contact-value">请简单描述遇到的问题和复现步骤，方便我们定位处理。</text>
+    </view>
+  </view>
+</view>

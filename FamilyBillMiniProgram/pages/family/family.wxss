@@ -1,0 +1,535 @@
+/* pages/family/family.wxss */
+
+/* 当前家庭 */
+.current-family {
+  margin-bottom: 20rpx;
+}
+
+.family-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.family-info {
+  flex: 1;
+}
+
+.family-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.family-description {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.member-count {
+  font-size: 22rpx;
+  color: #999999;
+  display: block;
+}
+
+.family-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  color: #4CAF50;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid #4CAF50;
+  border-radius: 20rpx;
+}
+
+.action-btn:active {
+  background-color: #e8f5e8;
+}
+
+/* 家庭成员 */
+.family-members {
+  margin-top: 30rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.member-list {
+  margin-bottom: 30rpx;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.member-name {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.member-role {
+  font-size: 22rpx;
+  color: #4CAF50;
+}
+
+.member-status {
+  text-align: right;
+}
+
+.join-date {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.add-member {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx;
+  border: 2rpx dashed #cccccc;
+  border-radius: 12rpx;
+  color: #666666;
+}
+
+.add-member:active {
+  background-color: #f8f8f8;
+}
+
+.add-icon {
+  font-size: 32rpx;
+  margin-right: 16rpx;
+}
+
+.add-text {
+  font-size: 28rpx;
+}
+
+/* 无家庭状态 */
+.no-family {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.no-family-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.no-family-text {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 60rpx;
+  display: block;
+}
+
+.no-family .family-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 我的家庭列表 */
+.my-families {
+  margin-bottom: 20rpx;
+}
+
+.my-families-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.family-list {
+  margin-top: 20rpx;
+}
+
+.family-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.family-item:last-child {
+  border-bottom: none;
+}
+
+.family-item:active {
+  background-color: #f8f8f8;
+}
+
+.family-item.current {
+  background-color: #e8f5e8;
+  border-radius: 12rpx;
+  padding: 30rpx 20rpx;
+  margin-bottom: 10rpx;
+}
+
+.family-item .family-info {
+  flex: 1;
+}
+
+.family-item .family-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.family-item .family-description {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.family-item .member-count {
+  font-size: 22rpx;
+  color: #999999;
+  display: block;
+}
+
+.family-status {
+  text-align: right;
+}
+
+.current-badge {
+  font-size: 22rpx;
+  color: #4CAF50;
+  background-color: #e8f5e8;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+.switch-text {
+  font-size: 24rpx;
+  color: #4CAF50;
+}
+
+/* 家庭预算 */
+.family-budget {
+  margin-bottom: 20rpx;
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.budget-title-area {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.budget-toggle-arrow {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.manage-budget {
+  font-size: 24rpx;
+  color: #4CAF50;
+}
+
+.budget-overview {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.budget-item {
+  text-align: center;
+  flex: 1;
+}
+
+.budget-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+}
+
+.budget-value {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.budget-progress {
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12rpx;
+  background-color: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-right: 20rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 22rpx;
+  color: #666666;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+.budget-detail-list {
+  margin-top: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+}
+
+.budget-detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.budget-detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-left {
+  display: flex;
+  align-items: center;
+}
+
+.detail-category-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  color: #ffffff;
+  margin-right: 16rpx;
+}
+
+.detail-category-name {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.detail-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.detail-amount {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.detail-amount.used {
+  color: #f44336;
+}
+
+.detail-amount.over-budget {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.detail-usage {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+/* 弹窗样式 */
+.create-family-modal,
+.join-family-modal,
+.invite-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-family-modal .modal-content,
+.join-family-modal .modal-content,
+.invite-modal .modal-content {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  width: 90%;
+  max-width: 600rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.input-textarea {
+  min-height: 120rpx;
+  padding: 20rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333333;
+  background-color: #f8f8f8;
+}
+
+.input-textarea:focus {
+  border-color: #4CAF50;
+  background-color: #ffffff;
+}
+
+/* 邀请码显示 */
+.invite-code-display {
+  margin-bottom: 30rpx;
+}
+
+.invite-label {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.invite-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.code-text {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  letter-spacing: 8rpx;
+  font-family: 'Courier New', monospace;
+}
+
+.copy-btn {
+  font-size: 24rpx;
+  color: #4CAF50;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid #4CAF50;
+  border-radius: 20rpx;
+}
+
+.copy-btn:active {
+  background-color: #e8f5e8;
+}
+
+/* 提示信息 */
+.join-tips,
+.invite-tips {
+  margin-top: 20rpx;
+}
+
+.tips-text {
+  font-size: 24rpx;
+  color: #666666;
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+/* 家庭操作弹窗 */
+.family-actions-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.actions-content {
+  background-color: #ffffff;
+  border-radius: 20rpx 20rpx 0 0;
+  width: 100%;
+  padding: 20rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.action-item {
+  padding: 30rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 10rpx;
+  border-radius: 12rpx;
+}
+
+.action-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.action-item:active {
+  background-color: #f8f8f8;
+}
+
+.action-item.danger {
+  color: #f44336;
+}
+
+.action-text {
+  font-size: 32rpx;
+  font-weight: 500;
+}

@@ -1,0 +1,181 @@
+<!--pages/budget/budget.wxml-->
+<view class="container">
+  <!-- 时间选择 -->
+  <view class="time-selector card">
+    <view class="time-display" bindtap="showTimePicker">
+      <text class="time-text">{{timeText}}</text>
+      <text class="time-arrow">▼</text>
+    </view>
+    <view class="family-selector" wx:if="{{families.length > 0}}">
+      <picker mode="selector" range="{{families}}" range-key="name" value="{{selectedFamilyIndex}}" bindchange="onFamilyChange">
+        <view class="family-display">
+          <text class="family-label">家庭</text>
+          <text class="family-name">{{selectedFamilyName}}</text>
+          <text class="family-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    <view class="budget-summary">
+      <text class="summary-text">总预算: {{totalBudget}} | 已用: {{totalUsed}} | 剩余: {{totalRemaining}}</text>
+    </view>
+  </view>
+
+  <!-- 预算列表 -->
+  <view class="budget-list">
+    <view class="budget-item card" wx:for="{{budgets}}" wx:key="id">
+      <view class="budget-header">
+        <view class="category-info">
+          <view class="category-icon" style="background-color: {{item.category.color}}">
+            {{item.category.icon || item.category.name.charAt(0)}}
+          </view>
+          <text class="category-name">{{item.category.name}}</text>
+        </view>
+        <view class="budget-actions">
+          <text class="edit-btn" bindtap="editBudget" data-budget="{{item}}">编辑</text>
+          <text class="delete-btn" bindtap="deleteBudget" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+      
+      <view class="budget-content">
+        <view class="budget-amounts">
+          <view class="amount-item">
+            <text class="amount-label">预算金额</text>
+            <text class="amount-value">{{item.amount}}</text>
+          </view>
+          <view class="amount-item">
+            <text class="amount-label">已使用</text>
+            <text class="amount-value amount-expense">{{item.usedAmount}}</text>
+          </view>
+          <view class="amount-item">
+            <text class="amount-label">剩余</text>
+            <text class="amount-value {{item.remaining >= 0 ? 'amount-income' : 'amount-expense'}}">
+              {{item.remaining}}
+            </text>
+          </view>
+        </view>
+        
+        <view class="budget-progress">
+          <view class="progress-bar">
+            <view class="progress-fill {{item.isOverBudget ? 'over-budget' : ''}}" 
+                  style="width: {{Math.min(item.usagePercentage, 100)}}%"></view>
+          </view>
+          <text class="progress-text {{item.isOverBudget ? 'over-budget' : ''}}">
+            {{item.usagePercentage}}%
+          </text>
+        </view>
+        
+        <view class="budget-status" wx:if="{{item.isOverBudget}}">
+          <text class="status-text over-budget">⚠️ 预算超支</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-budget" wx:if="{{budgets.length === 0}}">
+      <view class="empty-icon">💰</view>
+      <text class="empty-text">暂无预算设置</text>
+      <button class="btn btn-primary" bindtap="showAddBudgetModal">添加预算</button>
+    </view>
+  </view>
+
+  <!-- 添加预算按钮 -->
+  <view class="add-budget-btn" wx:if="{{budgets.length > 0}}" bindtap="showAddBudgetModal">
+    <text class="add-icon">+</text>
+  </view>
+</view>
+
+<!-- 时间选择弹窗 -->
+<view class="time-picker-modal" wx:if="{{showTimePicker}}">
+  <view class="modal-mask" bindtap="hideTimePicker"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择月份</text>
+      <text class="modal-close" bindtap="hideTimePicker">×</text>
+    </view>
+    <picker-view class="time-picker-view" value="{{timePickerValue}}" bindchange="onTimePickerChange">
+      <picker-view-column>
+        <view wx:for="{{years}}" wx:key="*this" class="picker-item">{{item}}年</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{months}}" wx:key="*this" class="picker-item">{{item}}月</view>
+      </picker-view-column>
+    </picker-view>
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideTimePicker">取消</button>
+      <button class="btn btn-primary" bindtap="confirmTimePicker">确定</button>
+    </view>
+  </view>
+</view>
+
+<!-- 添加/编辑预算弹窗 -->
+<view class="budget-modal" wx:if="{{showBudgetModal}}">
+  <view class="modal-mask" bindtap="hideBudgetModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">{{isEditMode ? '编辑预算' : '添加预算'}}</text>
+      <text class="modal-close" bindtap="hideBudgetModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">选择分类</text>
+        <view class="category-selector" bindtap="showCategoryPicker">
+          <view class="selected-category" wx:if="{{budgetForm.categoryId}}">
+            <view class="category-icon" style="background-color: {{selectedCategory.color}}">
+              {{selectedCategory.icon || selectedCategory.name.charAt(0)}}
+            </view>
+            <text class="category-name">{{selectedCategory.name}}</text>
+          </view>
+          <text class="placeholder" wx:else>请选择分类</text>
+          <text class="selector-arrow">></text>
+        </view>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">预算金额</text>
+        <input class="input-field" type="digit" placeholder="请输入预算金额" value="{{budgetForm.amount}}" bindinput="onBudgetAmountInput" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">备注</text>
+        <textarea class="input-textarea" placeholder="预算备注（可选）" value="{{budgetForm.description}}" bindinput="onBudgetDescriptionInput" maxlength="100"></textarea>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideBudgetModal">取消</button>
+      <button class="btn btn-primary" bindtap="saveBudget" disabled="{{!budgetForm.categoryId || !budgetForm.amount || saveLoading}}">
+        {{saveLoading ? (isEditMode ? '保存中...' : '添加中...') : (isEditMode ? '保存' : '添加')}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 分类选择弹窗 -->
+<view class="category-picker-modal" wx:if="{{showCategoryPicker}}">
+  <view class="modal-mask" bindtap="hideCategoryPicker"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择分类</text>
+      <text class="modal-close" bindtap="hideCategoryPicker">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="category-list">
+        <view class="category-item {{item.id === budgetForm.categoryId ? 'selected' : ''}}" 
+              wx:for="{{expenseCategories}}" wx:key="id"
+              bindtap="selectCategory" data-category="{{item}}">
+          <view class="category-icon" style="background-color: {{item.color}}">
+            {{item.icon || item.name.charAt(0)}}
+          </view>
+          <text class="category-name">{{item.name}}</text>
+          <text class="selected-mark" wx:if="{{item.id === budgetForm.categoryId}}">✓</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-primary" bindtap="hideCategoryPicker">确定</button>
+    </view>
+  </view>
+</view>

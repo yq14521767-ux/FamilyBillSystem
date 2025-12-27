@@ -1,0 +1,415 @@
+/* pages/index/index.wxss */
+
+/* 用户信息卡片 */
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: #ffffff;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.user-greeting {
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.user-actions {
+  text-align: right;
+}
+
+.current-family {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.no-family {
+  font-size: 24rpx;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* 统计卡片 */
+.stats-card {
+  margin-top: 20rpx;
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.stats-date {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.stats-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 10rpx;
+}
+
+.stat-value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+/* 快速操作 */
+.quick-actions {
+  margin-top: 20rpx;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+  margin-top: 30rpx;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.action-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 16rpx;
+}
+
+.expense-icon {
+  background-color: #f44336;
+}
+
+.income-icon {
+  background-color: #4CAF50;
+}
+
+.bills-icon {
+  background-color: #2196F3;
+}
+
+.stats-icon {
+  background-color: #FF9800;
+}
+
+.budget-icon {
+  background-color: #FF9800;
+}
+
+.notifications-icon {
+  background-color: #eadc21;
+  position: relative;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 7rpx;
+  right: 10rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background-color: #f44336;
+  border: 2rpx solid #ffffff;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 最近账单 */
+.recent-bills {
+  margin-top: 20rpx;
+}
+
+.bills-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.view-all {
+  font-size: 24rpx;
+  color: #4CAF50;
+}
+
+.bills-list {
+  margin-top: 20rpx;
+}
+
+.bill-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.bill-item:last-child {
+  border-bottom: none;
+}
+
+.bill-item:active {
+  background-color: #f8f8f8;
+}
+
+.bill-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #ffffff;
+  margin-right: 20rpx;
+}
+
+.bill-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.bill-category {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.bill-description {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+}
+
+.bill-date {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.bill-amount {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.bill-user  {
+  font-size: 25rpx;
+  color: #999999;
+  margin-top: 8rpx;
+}
+
+.bill-family {
+  font-size: 27rpx;
+  color: #999999;
+  margin-top: 8rpx;
+}
+
+/* 预算提醒 */
+.budget-alerts {
+  margin-top: 20rpx;
+}
+
+.alert-list {
+  margin-top: 20rpx;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-icon {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #ffffff;
+  margin-right: 20rpx;
+}
+
+.alert-danger {
+  background-color: #f44336;
+}
+
+.alert-warning {
+  background-color: #FF9800;
+}
+
+.alert-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.alert-title {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.alert-message {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.alert-amount {
+  text-align: right;
+}
+
+/* 悬浮按钮 */
+.fab {
+  position: fixed;
+  bottom: 120rpx;
+  right: 40rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.4);
+  z-index: 100;
+}
+
+.fab-icon {
+  font-size: 48rpx;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+/* 添加选项弹窗 */
+.add-options-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.add-options-content {
+  background-color: #ffffff;
+  border-radius: 20rpx 20rpx 0 0;
+  padding: 40rpx;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  position: relative;
+  z-index: 1;
+}
+
+.add-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx;
+}
+
+.option-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+
+.option-text {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.empty-state-text {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 30rpx;
+  display: block;
+}

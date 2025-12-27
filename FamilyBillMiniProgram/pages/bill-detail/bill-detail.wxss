@@ -1,0 +1,122 @@
+/* pages/bill-detail/bill-detail.wxss */
+
+.bill-card {
+  margin-bottom: 20rpx;
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+}
+
+.category-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #ffffff;
+  margin-right: 20rpx;
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-name {
+  font-size: 30rpx;
+  color: #333333;
+  margin-bottom: 6rpx;
+}
+
+.bill-date {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.amount-wrapper {
+  text-align: right;
+}
+
+.amount {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.bill-section {
+  margin-top: 24rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.section-label {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.section-value {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.section-user {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.remark {
+  max-width: 480rpx;
+  text-align: right;
+}
+
+.footer-actions {
+  margin-top: 40rpx;
+}
+.action-item {
+  padding: 30rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 10rpx;
+  border-radius: 12rpx;
+}
+
+.action-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.action-item:active {
+  background-color: #f8f8f8;
+}
+
+.action-item.danger {
+  color: #f44336;
+}
+
+
+.empty-card {
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}

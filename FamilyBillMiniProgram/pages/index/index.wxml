@@ -1,0 +1,145 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card card">
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatar || '/images/user.png'}}" mode="aspectFill" binderror="onAvatarLoadError"></image>
+      <view class="user-details">
+        <text class="user-name">{{userInfo.nickName || userInfo.username}}</text>
+        <text class="user-greeting">{{greeting}}</text>
+      </view>
+    </view>
+    <view class="user-actions" bindtap="goToFamily">
+      <text class="current-family" wx:if="{{currentFamily}}">{{currentFamily.name}}</text>
+      <text class="no-family" wx:else>选择家庭</text>
+    </view>
+  </view>
+
+  <!-- 快速统计 -->
+  <view class="stats-card card">
+    <view class="stats-header">
+      <text class="card-title">本月概览</text>
+      <text class="stats-date">{{currentMonth}}</text>
+    </view>
+    <view class="stats-content" wx:if="{{!loading}}">
+      <view class="stat-item">
+        <text class="stat-label">收入</text>
+        <text class="stat-value amount-income">+{{monthlyStats.income}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">支出</text>
+        <text class="stat-value amount-expense">-{{monthlyStats.expense}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">结余</text>
+        <text class="stat-value {{monthlyStats.balance >= 0 ? 'amount-income' : 'amount-expense'}}">{{monthlyStats.balance >= 0 ? '+' : ''}}{{monthlyStats.balance}}</text>
+      </view>
+    </view>
+    <view class="loading-state" wx:else>
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+
+  <!-- 快速操作 -->
+  <view class="quick-actions card">
+    <text class="card-title">快速操作</text>
+    <view class="action-grid">
+      <view class="action-item" bindtap="quickAddExpense">
+        <view class="action-icon expense-icon">支</view>
+        <text class="action-text">记支出</text>
+      </view>
+      <view class="action-item" bindtap="quickAddIncome">
+        <view class="action-icon income-icon">收</view>
+        <text class="action-text">记收入</text>
+      </view>
+      <view class="action-item" bindtap="goToBudget">
+        <view class="action-icon budget-icon">预</view>
+        <text class="action-text">预算设置</text>
+      </view>
+      <view class="action-item" bindtap="goToNotifications">
+        <view class="action-icon notifications-icon">
+          消
+          <view class="notification-dot" wx:if="{{unreadNotificationsCount > 0}}"></view>
+        </view>
+        <text class="action-text">消息中心</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近账单 -->
+  <view class="recent-bills card">
+    <view class="bills-header">
+      <text class="card-title">最近账单</text>
+      <text class="view-all" bindtap="goToBills">查看全部</text>
+    </view>
+    
+    <view class="bills-list" wx:if="{{recentBills.length > 0}}">
+      <view class="bill-item" wx:for="{{recentBills}}" wx:key="id" bindtap="viewBillDetail" data-bill="{{item}}">
+        <view class="bill-icon" style="background-color: {{item.categoryColor}}">
+          {{item.categoryIcon || item.categoryName.charAt(0)}}
+        </view>
+        <view class="bill-content">
+          <text class="bill-category">{{item.categoryName}}</text>
+          <text class="bill-description" wx:if="{{item.description}}">{{item.description}}</text>
+          
+          <text class="bill-date">{{item.billDate}}</text>
+          <text class="bill-user">记账人：{{item.memberNickName || item.userNickName || item.username}}</text>
+        </view>
+        <view class="bill-amount">
+          <text class="amount {{item.categoryType === 1 ? 'amount-income' : 'amount-expense'}}">
+            {{item.categoryType === 1 ? '+' : '-'}}{{item.amount}}
+          </text>
+          <text class="bill-family" wx:if="{{item.familyName}}">{{item.familyName}}</text>
+          
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <text class="empty-state-text">暂无账单记录</text>
+      <button class="btn btn-primary btn-small" bindtap="quickAddExpense">立即记账</button>
+    </view>
+  </view>
+
+  <!-- 预算提醒 -->
+  <view class="budget-alerts card" wx:if="{{budgetAlerts.length > 0}}">
+    <text class="card-title">预算提醒</text>
+    <view class="alert-list">
+      <view class="alert-item" wx:for="{{budgetAlerts}}" wx:key="id">
+        <view class="alert-icon {{item.isOverBudget ? 'alert-danger' : 'alert-warning'}}">
+          {{item.isOverBudget ? '!' : '⚠'}}
+        </view>
+        <view class="alert-content">
+          <text class="alert-title">{{item.categoryName}}</text>
+          <text class="alert-message">
+            {{item.isOverBudget ? '已超出预算' : '接近预算上限'}}
+            {{item.usagePercentage}}%
+          </text>
+        </view>
+        <view class="alert-amount">
+          <text class="amount-small">{{item.usedAmount}}/{{item.amount}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 悬浮添加按钮 -->
+<view class="fab" bindtap="showAddOptions">
+  <text class="fab-icon">+</text>
+</view>
+
+<!-- 添加选项弹窗 -->
+<view class="add-options-modal" wx:if="{{showAddOptions}}">
+  <view class="modal-mask" bindtap="hideAddOptions"></view>
+  <view class="add-options-content">
+    <view class="add-option" bindtap="quickAddIncome">
+      <view class="option-icon income-icon">收</view>
+      <text class="option-text">记收入</text>
+    </view>
+    <view class="add-option" bindtap="quickAddExpense">
+      <view class="option-icon expense-icon">支</view>
+      <text class="option-text">记支出</text>
+    </view>
+  </view>
+</view>

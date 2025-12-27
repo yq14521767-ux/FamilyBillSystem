@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT认证测试工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        input, textarea, button { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { background-color: #f8f9fa; padding: 10px; border-radius: 3px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔧 JWT认证测试工具</h1>
+    
+    <div class="section">
+        <h3>1. 服务器配置</h3>
+        <label>API基础URL:</label>
+        <input type="text" id="baseUrl" value="https://familysys.hejiancheng.xyz/api" placeholder="https://your-domain.com/api">
+    </div>
+
+    <div class="section">
+        <h3>2. 健康检查（无需认证）</h3>
+        <button onclick="testHealth()">测试健康检查</button>
+        <div id="healthResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>3. 用户登录</h3>
+        <label>邮箱:</label>
+        <input type="email" id="email" placeholder="your-email@example.com">
+        <label>密码:</label>
+        <input type="password" id="password" placeholder="your-password">
+        <button onclick="login()">登录</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>4. Token信息检查（需要认证）</h3>
+        <label>当前Token:</label>
+        <textarea id="currentToken" rows="3" readonly placeholder="登录后自动填充"></textarea>
+        <button onclick="testTokenInfo()">检查Token信息</button>
+        <div id="tokenResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>5. Token解码查看</h3>
+        <button onclick="decodeToken()">解码当前Token</button>
+        <div id="decodeResult" class="result"></div>
+    </div>
+
+    <script>
+        let currentToken = '';
+        let refreshToken = '';
+
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value.trim();
+        }
+
+        function showResult(elementId, content, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = content;
+            element.className = isError ? 'result error' : 'result success';
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${getBaseUrl()}/test/health`);
+                const data = await response.json();
+                showResult('healthResult', `✅ 健康检查成功\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                showResult('healthResult', `❌ 健康检查失败: ${error.message}`, true);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showResult('loginResult', '❌ 请填写邮箱和密码', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    currentToken = data.token;
+                    refreshToken = data.refreshToken;
+                    document.getElementById('currentToken').value = currentToken;
+                    
+                    showResult('loginResult', `✅ 登录成功\n用户: ${data.user?.nickname || data.user?.email}\nToken长度: ${currentToken.length}`);
+                } else {
+                    showResult('loginResult', `❌ 登录失败: ${data.message || '未知错误'}`, true);
+                }
+            } catch (error) {
+                showResult('loginResult', `❌ 登录请求失败: ${error.message}`, true);
+            }
+        }
+
+        async function testTokenInfo() {
+            if (!currentToken) {
+                showResult('tokenResult', '❌ 请先登录获取Token', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/test/token-info`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult('tokenResult', `✅ Token验证成功\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    showResult('tokenResult', `❌ Token验证失败 (${response.status}): ${data.message || JSON.stringify(data)}`, true);
+                }
+            } catch (error) {
+                showResult('tokenResult', `❌ Token验证请求失败: ${error.message}`, true);
+            }
+        }
+
+        function decodeToken() {
+            const token = document.getElementById('currentToken').value || currentToken;
+            
+            if (!token) {
+                showResult('decodeResult', '❌ 没有Token可解码', true);
+                return;
+            }
+
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    showResult('decodeResult', `❌ Token格式错误: 应该有3部分，实际有${parts.length}部分`, true);
+                    return;
+                }
+
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+                
+                const expDate = payload.exp ? new Date(payload.exp * 1000) : null;
+                const now = new Date();
+                const isExpired = expDate && expDate < now;
+
+                const result = {
+                    header: header,
+                    payload: payload,
+                    signature: parts[2],
+                    tokenLength: token.length,
+                    partsLength: parts.map(p => p.length),
+                    expirationTime: expDate ? expDate.toLocaleString() : '无过期时间',
+                    isExpired: isExpired,
+                    timeUntilExpiry: expDate ? Math.round((expDate - now) / 1000 / 60) + ' 分钟' : 'N/A'
+                };
+
+                showResult('decodeResult', `🔍 Token解码结果:\n${JSON.stringify(result, null, 2)}`, isExpired);
+            } catch (error) {
+                showResult('decodeResult', `❌ Token解码失败: ${error.message}`, true);
+            }
+        }
+
+        // 页面加载时测试健康检查
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

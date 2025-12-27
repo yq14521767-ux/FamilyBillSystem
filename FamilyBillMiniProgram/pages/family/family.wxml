@@ -1,0 +1,251 @@
+<!--pages/family/family.wxml-->
+<view class="container">
+  <!-- 当前家庭 -->
+  <view class="current-family card" wx:if="{{currentFamily}}">
+    <view class="family-header">
+      <view class="family-info">
+        <text class="family-name">{{currentFamily.name}}</text>
+        <text class="family-description" wx:if="{{currentFamily.description}}">{{currentFamily.description}}</text>
+        <text class="member-count">{{currentFamily.memberCount}}位成员</text>
+      </view>
+      <view class="family-actions">
+        <text class="action-btn" bindtap="showFamilyActions">管理</text>
+      </view>
+    </view>
+    
+    <!-- 家庭成员 -->
+    <view class="family-members">
+      <text class="section-title">家庭成员</text>
+      <view class="member-list">
+        <view class="member-item" wx:for="{{familyMembers}}" wx:key="id">
+          <image 
+            class="member-avatar" 
+            src="{{item.avatarDisplayUrl || '/images/user.png'}}" 
+            mode="aspectFill" 
+            binderror="onAvatarLoadError"
+            data-index="{{index}}"
+          ></image>
+          <view class="member-info">
+            <text class="member-name">{{item.nickName || item.username}}</text>
+            <text class="member-role">{{item.role === 1 ? '管理员' : '成员'}}</text>
+          </view>
+          <view class="member-status">
+            <text class="join-date">{{item.joinDate}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="add-member" bindtap="showInviteModal">
+        <view class="add-icon">+</view>
+        <text class="add-text">邀请成员</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 无家庭状态 -->
+  <view class="no-family" wx:else>
+    <view class="no-family-icon">🏠</view>
+    <text class="no-family-text">您还没有加入任何家庭</text>
+    <view class="family-actions">
+      <button class="btn btn-primary" bindtap="showCreateFamilyModal">创建家庭</button>
+      <button class="btn btn-secondary" bindtap="showJoinFamilyModal">加入家庭</button>
+    </view>
+  </view>
+
+  <!-- 我的家庭列表 -->
+  <view class="my-families card" wx:if="{{myFamilies.length > 0}}">
+    <view class="my-families-header">
+      <text class="card-title">我的家庭</text>
+      <view class="family-actions">
+        <text class="action-btn" bindtap="showCreateFamilyModal">创建家庭</text>
+        <text class="action-btn" bindtap="showJoinFamilyModal">加入家庭</text>
+      </view>
+    </view>
+    <view class="family-list">
+      <view class="family-item {{item.id === currentFamily.id ? 'current' : ''}}" 
+            wx:for="{{myFamilies}}" wx:key="id" 
+            bindtap="switchFamily" data-family="{{item}}">
+        <view class="family-info">
+          <text class="family-name">{{item.name}}</text>
+          <text class="family-description" wx:if="{{item.description}}">{{item.description}}</text>
+          <text class="member-count">{{item.memberCount}}位成员</text>
+        </view>
+        <view class="family-status">
+          <text class="current-badge" wx:if="{{item.id === currentFamily.id}}">当前</text>
+          <text class="switch-text" wx:else>切换</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 家庭预算 -->
+  <view class="family-budget card" wx:if="{{currentFamily && budgetSummary}}">
+    <view class="budget-header">
+      <view class="budget-title-area" bindtap="toggleBudgetDetail">
+        <text class="card-title budget-toggle-arrow">本月预算{{showBudgetDetail ? '▲' : '▼'}}</text>
+        <!-- <text class="budget-toggle-arrow">{{showBudgetDetail ? '▲' : '▼'}}</text> -->
+      </view>
+      <text class="manage-budget" wx:if="{{canManageCurrentFamily}}" bindtap="manageBudget">管理</text>
+    </view>
+    <view class="budget-overview">
+      <view class="budget-item">
+        <text class="budget-label">总预算</text>
+        <text class="budget-value">{{budgetSummary.totalBudget}}</text>
+      </view>
+      <view class="budget-item">
+        <text class="budget-label">已使用</text>
+        <text class="budget-value amount-expense">{{budgetSummary.totalUsed}}</text>
+      </view>
+      <view class="budget-item">
+        <text class="budget-label">剩余</text>
+        <text class="budget-value {{budgetSummary.remaining >= 0 ? 'amount-income' : 'amount-expense'}}">{{budgetSummary.remaining}}</text>
+      </view>
+    </view>
+    <view class="budget-progress">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{Math.min(budgetSummary.usagePercentage, 100)}}%"></view>
+      </view>
+      <text class="progress-text">{{budgetSummary.usagePercentage}}%</text>
+    </view>
+
+    <view class="budget-detail-list" wx:if="{{showBudgetDetail}}">
+      <view class="budget-detail-item" wx:for="{{budgetDetails}}" wx:key="categoryId">
+        <view class="detail-left">
+          <view class="detail-category-icon" style="background-color: {{item.categoryColor}}">
+            {{item.categoryIcon || item.categoryName.charAt(0)}}
+          </view>
+          <text class="detail-category-name">{{item.categoryName}}</text>
+        </view>
+        <view class="detail-right">
+          <text class="detail-amount">预算 {{item.budget}}</text>
+          <text class="detail-amount used">已用 {{item.spent}}</text>
+          <text class="detail-amount {{item.isOverBudget ? 'over-budget' : ''}}">剩余 {{item.remaining}}</text>
+          <text class="detail-usage">已用 {{item.utilizationRate}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 创建家庭弹窗 -->
+<view class="create-family-modal" wx:if="{{showCreateFamilyModal}}">
+  <view class="modal-mask" bindtap="hideCreateFamilyModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">创建家庭</text>
+      <text class="modal-close" bindtap="hideCreateFamilyModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">家庭名称</text>
+        <input class="input-field" type="text" placeholder="请输入家庭名称" value="{{createForm.name}}" bindinput="onCreateNameInput" />
+      </view>
+
+      <view class="input-group">
+        <text class="input-label">家庭内昵称</text>
+        <input class="input-field" type="text" placeholder="请输入您在家庭内的昵称" value="{{createForm.familyname}}" bindinput="onCreateFamilyNameInput" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">家庭描述</text>
+        <textarea class="input-textarea" placeholder="简单描述一下这个家庭（可选）" value="{{createForm.description}}" bindinput="onCreateDescriptionInput" maxlength="200"></textarea>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideCreateFamilyModal">取消</button>
+      <button class="btn btn-primary" bindtap="createFamily" disabled="{{!createForm.name || createLoading}}">
+        {{createLoading ? '创建中...' : '创建'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 加入家庭弹窗 -->
+<view class="join-family-modal" wx:if="{{showJoinFamilyModal}}">
+  <view class="modal-mask" bindtap="hideJoinFamilyModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">加入家庭</text>
+      <text class="modal-close" bindtap="hideJoinFamilyModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">邀请码</text>
+        <input class="input-field" type="text" placeholder="请输入6位邀请码" value="{{joinForm.inviteCode}}" bindinput="onJoinCodeInput" maxlength="6" />
+      </view>
+      <view class="input-group">
+        <text class="input-label">家庭内昵称</text>
+        <input class="input-field" type="text" placeholder="在家庭中显示的昵称（可选）" value="{{joinForm.nickname}}" bindinput="onJoinNicknameInput" maxlength="20" />
+      </view>
+
+      <view class="join-tips">
+        <text class="tips-text">请向家庭管理员获取邀请码</text>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideJoinFamilyModal">取消</button>
+      <button class="btn btn-primary" bindtap="joinFamily" disabled="{{!joinForm.inviteCode || joinLoading}}">
+        {{joinLoading ? '加入中...' : '加入'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 邀请成员弹窗 -->
+<view class="invite-modal" wx:if="{{showInviteModal}}">
+  <view class="modal-mask" bindtap="hideInviteModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">邀请成员</text>
+      <text class="modal-close" bindtap="hideInviteModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="invite-code-display">
+        <text class="invite-label">邀请码</text>
+        <view class="invite-code">
+          <text class="code-text">{{inviteCode}}</text>
+          <text class="copy-btn" bindtap="copyInviteCode">复制</text>
+        </view>
+      </view>
+      
+      <view class="invite-tips">
+        <text class="tips-text">将邀请码分享给家庭成员，他们可以通过此邀请码加入家庭</text>
+        <text class="tips-text">邀请码有效期为7天</text>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-primary" bindtap="shareInviteCode">分享邀请码</button>
+    </view>
+  </view>
+</view>
+
+<!-- 家庭操作弹窗 -->
+<view class="family-actions-modal" wx:if="{{showFamilyActions}}">
+  <view class="modal-mask" bindtap="hideFamilyActions"></view>
+  <view class="actions-content">
+    <view class="action-item" wx:if="{{canManageCurrentFamily}}" bindtap="editFamily">
+      <text class="action-text">编辑家庭信息</text>
+    </view>
+    <view class="action-item" bindtap="manageBudget">
+      <text class="action-text">预算管理</text>
+    </view>
+    <view class="action-item" bindtap="manageMembers">
+      <text class="action-text">成员列表</text>
+    </view>
+    <view class="action-item danger" wx:if="{{canManageCurrentFamily}}" bindtap="deleteFamily">
+      <text class="action-text">删除家庭</text>
+    </view>
+    <view class="action-item danger" wx:if="{{!canManageCurrentFamily}}" bindtap="leaveFamily">
+      <text class="action-text">退出家庭</text>
+    </view>
+    <view class="action-item" bindtap="hideFamilyActions">
+      <text class="action-text">取消</text>
+    </view>
+  </view>
+</view>

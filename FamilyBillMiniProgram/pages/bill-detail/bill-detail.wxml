@@ -1,0 +1,68 @@
+<!-- pages/bill-detail/bill-detail.wxml -->
+<view class="container" wx:if="{{bill}}">
+  <view class="card bill-card">
+    <view class="bill-header">
+      <view class="category">
+        <view class="category-icon" style="background-color: {{bill.categoryColor || '#4CAF50'}}">
+          {{bill.categoryIcon || (bill.categoryName ? bill.categoryName.charAt(0) : '')}}
+        </view>
+        <view class="category-info">
+          <text class="category-name">{{bill.categoryName || '未分类'}}</text>
+          <text class="bill-date">{{bill.billDateText}}</text>
+        </view>
+      </view>
+      <view class="amount-wrapper">
+        <text class="amount {{bill.isIncome ? 'amount-income' : 'amount-expense'}}">
+          {{bill.amountSign}}{{bill.amountText}}
+        </text>
+      </view>
+    </view>
+
+    <view class="bill-section">
+      <text class="section-label">类型</text>
+      <text class="section-value">{{bill.typeText}}</text>
+    </view>
+
+    <view class="bill-section" wx:if="{{bill.familyName}}">
+      <text class="section-label">家庭</text>
+      <text class="section-value">{{bill.familyName}}</text>
+    </view>
+
+    <view class="bill-section" wx:if="{{bill.paymentMethod}}">
+      <text class="section-label">支付方式</text>
+      <text class="section-value">{{bill.paymentMethod}}</text>
+    </view>
+
+    <view class="bill-section">
+      <text class="section-label">记账人</text>
+      <view class="section-user">
+        <image class="user-avatar" src="{{bill.avatarDisplayUrl || '/images/user.png'}}" mode="aspectFill" />
+        <text class="section-value">{{bill.userNickName || '未知'}}</text>
+      </view>
+    </view>
+
+    <view class="bill-section">
+      <text class="section-label">备注</text>
+      <text class="section-value remark">{{bill.description || '无'}}</text>
+    </view>
+
+    <view class="bill-section">
+      <text class="section-label">详细说明</text>
+      <text class="section-value remark">{{bill.remarkText || '无'}}</text>
+    </view>
+  </view>
+
+  <view class="footer-actions">
+    <button class="btn btn-primary" bindtap="goToEdit">编辑账单</button>
+  </view>
+  <view class="footer-actions">
+    <button class="btn btn-danger" bindtap="deleteBill">删除账单</button>
+  </view>
+
+</view>
+
+<view class="container" wx:else>
+  <view class="card empty-card">
+    <text class="empty-text">正在加载账单详情...</text>
+  </view>
+</view>

@@ -1,0 +1,6 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "家庭账单管理",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

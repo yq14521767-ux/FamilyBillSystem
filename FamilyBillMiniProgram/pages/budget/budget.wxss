@@ -1,0 +1,418 @@
+/* pages/budget/budget.wxss */
+
+/* 时间选择器 */
+.time-selector {
+  margin-bottom: 20rpx;
+}
+
+.time-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.time-display:active {
+  background-color: #f8f8f8;
+}
+
+.time-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-right: 10rpx;
+}
+
+.time-arrow {
+  font-size: 20rpx;
+  color: #999999;
+}
+
+/* 家庭选择器 */
+.family-selector {
+  margin: 0 0 10rpx;
+}
+
+.family-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 20rpx;
+  border-radius: 12rpx;
+  background-color: #f8f8f8;
+}
+
+.family-label {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.family-name {
+  flex: 1;
+  text-align: right;
+  font-size: 26rpx;
+  color: #333333;
+  margin-right: 8rpx;
+}
+
+.family-arrow {
+  font-size: 20rpx;
+  color: #999999;
+}
+
+.budget-summary {
+  text-align: center;
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+}
+
+.summary-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 预算列表 */
+.budget-list {
+  margin-bottom: 120rpx;
+}
+
+.budget-item {
+  margin-bottom: 20rpx;
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.category-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.category-icon {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #ffffff;
+  margin-right: 20rpx;
+}
+
+.category-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.budget-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.edit-btn,
+.delete-btn {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.edit-btn {
+  color: #4CAF50;
+  border: 1rpx solid #4CAF50;
+}
+
+.edit-btn:active {
+  background-color: #e8f5e8;
+}
+
+.delete-btn {
+  color: #f44336;
+  border: 1rpx solid #f44336;
+}
+
+.delete-btn:active {
+  background-color: #ffebee;
+}
+
+/* 预算内容 */
+.budget-content {
+  margin-top: 30rpx;
+}
+
+.budget-amounts {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.amount-item {
+  text-align: center;
+  flex: 1;
+}
+
+.amount-label {
+  display: block;
+  font-size: 22rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+.amount-value {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+/* 预算进度 */
+.budget-progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12rpx;
+  background-color: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-right: 20rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.over-budget {
+  background-color: #f44336;
+}
+
+.progress-text {
+  font-size: 22rpx;
+  color: #666666;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+.progress-text.over-budget {
+  color: #f44336;
+}
+
+/* 预算状态 */
+.budget-status {
+  text-align: center;
+}
+
+.status-text {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.status-text.over-budget {
+  color: #f44336;
+  background-color: #ffebee;
+}
+
+/* 空状态 */
+.empty-budget {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 60rpx;
+  display: block;
+}
+
+/* 添加预算按钮 */
+.add-budget-btn {
+  position: fixed;
+  bottom: 40rpx;
+  right: 40rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+  z-index: 100;
+}
+
+.add-budget-btn:active {
+  transform: scale(0.95);
+}
+
+.add-icon {
+  font-size: 48rpx;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+/* 弹窗样式 */
+.time-picker-modal,
+.budget-modal,
+.category-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-picker-modal .modal-content,
+.budget-modal .modal-content,
+.category-picker-modal .modal-content {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  width: 90%;
+  max-width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.time-picker-view {
+  height: 400rpx;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* 分类选择器 */
+.category-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  background-color: #f8f8f8;
+  min-height: 80rpx;
+}
+
+.category-selector:active {
+  background-color: #f0f0f0;
+}
+
+.selected-category {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.selected-category .category-icon {
+  width: 40rpx;
+  height: 40rpx;
+  font-size: 18rpx;
+  margin-right: 16rpx;
+}
+
+.selected-category .category-name {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.placeholder {
+  font-size: 28rpx;
+  color: #999999;
+  flex: 1;
+}
+
+.selector-arrow {
+  font-size: 24rpx;
+  color: #cccccc;
+}
+
+.input-textarea {
+  min-height: 120rpx;
+  padding: 20rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333333;
+  background-color: #f8f8f8;
+}
+
+.input-textarea:focus {
+  border-color: #4CAF50;
+  background-color: #ffffff;
+}
+
+/* 分类列表 */
+.category-list {
+  max-height: 500rpx;
+  overflow-y: auto;
+}
+
+.category-list .category-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+}
+
+.category-list .category-item:last-child {
+  border-bottom: none;
+}
+
+.category-list .category-item:active {
+  background-color: #f8f8f8;
+}
+
+.category-list .category-item.selected {
+  background-color: #e8f5e8;
+}
+
+.category-list .category-icon {
+  width: 50rpx;
+  height: 50rpx;
+  font-size: 22rpx;
+  margin-right: 20rpx;
+}
+
+.category-list .category-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.selected-mark {
+  font-size: 24rpx;
+  color: #4CAF50;
+  font-weight: bold;
+}

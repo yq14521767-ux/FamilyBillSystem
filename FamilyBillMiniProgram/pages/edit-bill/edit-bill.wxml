@@ -1,0 +1,69 @@
+<!-- pages/edit-bill/edit-bill.wxml -->
+<view class="container">
+  <!-- 金额 -->
+  <view class="form-item">
+    <text class="form-label">金额</text>
+    <input class="form-input amount-input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" />
+  </view>
+
+  <!-- 类型（只读） -->
+  <view class="form-item">
+    <text class="form-label">类型</text>
+    <text class="form-value">{{billType === 'income' ? '收入' : '支出'}}</text>
+  </view>
+
+  <!-- 分类 -->
+  <view class="form-item">
+    <text class="form-label">分类</text>
+    <picker mode="selector" range="{{selectableCategories}}" range-key="name" value="{{selectedCategoryIndex}}" bindchange="onCategoryChange">
+      <view class="form-value">
+        <text>{{selectedCategoryName || '请选择分类'}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 家庭（只读） -->
+  <view class="form-item" wx:if="{{familyName}}">
+    <text class="form-label">家庭</text>
+    <text class="form-value">{{familyName}}</text>
+  </view>
+
+  <!-- 支付方式 -->
+  <view class="form-item">
+    <text class="form-label">支付方式</text>
+    <picker mode="selector" range="{{paymentMethodOptions}}" value="{{paymentMethodIndex}}" bindchange="onPaymentMethodChange">
+      <view class="form-value">
+        <text>{{paymentMethod || '请选择支付方式（可选）'}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 日期 -->
+  <view class="form-item">
+    <text class="form-label">日期</text>
+    <picker mode="date" value="{{billDate}}" bindchange="onDateChange">
+      <view class="form-value">
+        <text>{{billDate}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 备注 -->
+  <view class="form-item">
+    <text class="form-label">备注</text>
+    <input class="form-input" type="text" placeholder="添加备注（可选）" value="{{description}}" bindinput="onDescriptionInput" />
+  </view>
+
+  <!-- 详细说明 -->
+  <view class="form-item">
+    <text class="form-label">详细说明</text>
+    <input class="form-input" type="text" placeholder="添加详细说明（可选）" value="{{remark}}" bindinput="onRemarkInput" />
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="btn btn-primary btn-large submit-btn" bindtap="onSubmit" disabled="{{submitting || !canSubmit}}">
+      {{submitting ? '保存中...' : '保存修改'}}
+    </button>
+  </view>
+</view>

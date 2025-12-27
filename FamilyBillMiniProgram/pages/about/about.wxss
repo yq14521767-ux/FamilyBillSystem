@@ -1,0 +1,53 @@
+.about-header {
+  align-items: center;
+}
+
+.app-logo {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.app-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin: 20rpx;
+}
+
+.app-version {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 10rpx;
+}
+
+.card-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.about-text {
+  margin-top: 16rpx;
+}
+
+.about-text text {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.6;
+}
+
+.about-row {
+  margin-top: 16rpx;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.value {
+  font-size: 26rpx;
+  color: #333333;
+}

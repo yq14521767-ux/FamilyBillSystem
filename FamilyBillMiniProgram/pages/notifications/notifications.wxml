@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="notifications-header">
+    <view class="filter-tabs">
+      <view class="filter-tab {{filterStatus === 'all' ? 'active' : ''}}" data-status="all" bindtap="changeFilterStatus">
+        <text>全部</text>
+      </view>
+      <view class="filter-tab {{filterStatus === 'unread' ? 'active' : ''}}" data-status="unread" bindtap="changeFilterStatus">
+        <text>未读</text>
+        <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount}}</view>
+      </view>
+    </view>
+    <button class="mark-all-btn" bindtap="markAllAsRead" disabled="{{unreadCount === 0}}">全部标记已读</button>
+  </view>
+
+  <view wx:if="{{!loading && notifications.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无通知</text>
+  </view>
+
+  <view wx:if="{{notifications.length > 0}}" class="notification-list">
+    <view class="notification-item {{item.status === 'unread' ? 'unread' : ''}}" wx:for="{{notifications}}" wx:key="id" data-id="{{item.id}}" bindtap="onNotificationTap">
+      <view class="notification-main">
+        <view class="notification-title-row">
+          <text class="notification-title">{{item.title}}</text>
+          <view class="status-dot" wx:if="{{item.status === 'unread'}}"></view>
+        </view>
+        <text class="notification-message">{{item.message}}</text>
+      </view>
+      <view class="notification-meta">
+        <text class="notification-time">{{item.createdAtText}}</text>
+      </view>
+    </view>
+
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text wx:if="{{loading}}" class="load-more-text">加载中...</text>
+      <text wx:else class="load-more-text" bindtap="loadMore">加载更多</text>
+    </view>
+  </view>
+</view>

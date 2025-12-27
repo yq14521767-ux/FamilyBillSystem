@@ -1,0 +1,203 @@
+<!--pages/profile/profile.wxml-->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card card">
+    <view class="user-header">
+      <image 
+        class="user-avatar" 
+        src="{{userInfo.avatarDisplayUrl || '/images/user.png'}}" 
+        mode="aspectFill" 
+        bindtap="changeAvatar"
+        binderror="onAvatarLoadError"
+      ></image>
+      <view class="user-info" bindtap="goToProfileDetail">
+        <text class="user-name">{{userInfo.nickname || (userInfo.email ? userInfo.email.split('@')[0] : '用户')}}</text>
+        <text class="user-email" wx:if="{{userInfo.email}}">{{userInfo.email}}</text>
+        <text class="join-date">加入时间：{{joinDate}}</text>
+      </view>
+      <view class="edit-profile" bindtap="editProfile">
+        <text class="edit-text">编辑</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据统计 -->
+  <view class="stats-card card">
+    <text class="card-title">我的数据</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.totalBills}}</text>
+        <text class="stat-label">总账单数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.totalFamilies}}</text>
+        <text class="stat-label">参与家庭</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.thisMonthBills}}</text>
+        <text class="stat-label">本月账单</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value amount-expense">{{userStats.thisMonthAmount}}</text>
+        <text class="stat-label">本月消费金额</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <!-- 账单管理 -->
+    <view class="menu-group card">
+      <text class="group-title">账单管理</text>
+      <view class="menu-item" bindtap="goToCategories">
+        <view class="menu-icon categories-icon">📝</view>
+        <text class="menu-text">分类管理</text>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="goToBudget">
+        <view class="menu-icon budget-icon">💰</view>
+        <text class="menu-text">预算设置</text>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="exportData">
+        <view class="menu-icon export-icon">📊</view>
+        <text class="menu-text">数据导出</text>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+
+    <!-- 系统设置 -->
+    <view class="menu-group card">
+      <text class="group-title">系统设置</text>
+      <view class="menu-item" bindtap="goToNotifications">
+        <view class="menu-icon notifications-icon">🔔</view>
+        <text class="menu-text">消息中心</text>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="goToSettings">
+        <view class="menu-icon settings-icon">⚙️</view>
+        <text class="menu-text">应用设置</text>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="goToHelp">
+        <view class="menu-icon help-icon">❓</view>
+        <text class="menu-text">帮助中心</text>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="goToAbout">
+        <view class="menu-icon about-icon">ℹ️</view>
+        <text class="menu-text">关于我们</text>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+
+    <!-- 账户操作 -->
+    <view class="menu-group card">
+      <view class="menu-item" bindtap="logout">
+        <view class="menu-icon logout-icon">🚪</view>
+        <text class="menu-text logout-text">退出登录</text>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 编辑资料弹窗 -->
+<view class="edit-profile-modal" wx:if="{{showEditProfile}}">
+  <view class="modal-mask" bindtap="hideEditProfile"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">编辑资料</text>
+      <text class="modal-close" bindtap="hideEditProfile">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">昵称</text>
+        <input class="input-field" type="text" placeholder="请输入昵称" value="{{editForm.nickName}}" bindinput="onNickNameInput" maxlength="50" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">性别</text>
+        <picker 
+          class="input-field" 
+          mode="selector" 
+          range="{{genderOptions}}" 
+          range-key="name" 
+          value="{{genderIndex}}" 
+          bindchange="onGenderChange"
+        >
+          <view class="picker">
+            {{genderOptions[genderIndex].name}}
+          </view>
+        </picker>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">手机号</text>
+        <input 
+          class="input-field" 
+          type="number" 
+          placeholder="请输入手机号" 
+          value="{{editForm.phone}}" 
+          bindinput="onPhoneInput" 
+          maxlength="11"
+        />
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideEditProfile">取消</button>
+      <button class="btn btn-primary" bindtap="saveProfile" disabled="{{saveLoading}}">
+        {{saveLoading ? '保存中...' : '保存'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 数据导出弹窗 -->
+<view class="export-modal" wx:if="{{showExportModal}}">
+  <view class="modal-mask" bindtap="hideExportModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">数据导出</text>
+      <text class="modal-close" bindtap="hideExportModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="export-options">
+        <text class="option-title">导出范围</text>
+        <view class="option-group">
+          <view class="option-item {{exportForm.range === 'month' ? 'selected' : ''}}" bindtap="selectExportRange" data-range="month">
+            <text class="option-text">本月数据</text>
+          </view>
+          <view class="option-item {{exportForm.range === 'year' ? 'selected' : ''}}" bindtap="selectExportRange" data-range="year">
+            <text class="option-text">本年数据</text>
+          </view>
+          <view class="option-item {{exportForm.range === 'all' ? 'selected' : ''}}" bindtap="selectExportRange" data-range="all">
+            <text class="option-text">全部数据</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="export-options">
+        <text class="option-title">导出格式</text>
+        <view class="option-group">
+          <view class="option-item {{exportForm.format === 'excel' ? 'selected' : ''}}" bindtap="selectExportFormat" data-format="excel">
+            <text class="option-text">Excel格式</text>
+          </view>
+          <view class="option-item {{exportForm.format === 'csv' ? 'selected' : ''}}" bindtap="selectExportFormat" data-format="csv">
+            <text class="option-text">CSV格式</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideExportModal">取消</button>
+      <button class="btn btn-primary" bindtap="confirmExport" disabled="{{exportLoading}}">
+        {{exportLoading ? '导出中...' : '开始导出'}}
+      </button>
+    </view>
+  </view>
+</view>

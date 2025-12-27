@@ -1,0 +1,160 @@
+<!--pages/add-bill/add-bill.wxml-->
+<view class="container">
+  <!-- 类型切换 -->
+  <view class="type-tabs">
+    <view class="tab-item {{billType === 'expense' ? 'active expense' : ''}}" bindtap="switchType" data-type="expense">
+      <text class="tab-text">支出</text>
+    </view>
+    <view class="tab-item {{billType === 'income' ? 'active income' : ''}}" bindtap="switchType" data-type="income">
+      <text class="tab-text">收入</text>
+    </view>
+  </view>
+
+  <!-- 金额输入 -->
+  <view class="amount-section">
+    <view class="amount-display">
+      <text class="currency-symbol">¥</text>
+      <input class="amount-input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" focus="{{amountFocus}}" />
+    </view>
+  </view>
+
+  <!-- 表单内容 -->
+  <view class="form-section">
+    <!-- 分类选择 -->
+    <view class="form-item" bindtap="showCategoryPicker">
+      <text class="form-label">分类</text>
+      <view class="form-value">
+        <view class="category-display" wx:if="{{selectedCategory}}">
+          <view class="category-icon" style="background-color: {{selectedCategory.color}}">
+            {{selectedCategory.icon || selectedCategory.name.charAt(0)}}
+          </view>
+          <text class="category-name">{{selectedCategory.name}}</text>
+        </view>
+        <text class="placeholder" wx:else>请选择分类</text>
+        <text class="arrow">></text>
+      </view>
+    </view>
+
+    <!-- 家庭选择 -->
+    <view class="form-item">
+      <text class="form-label">家庭</text>
+      <picker mode="selector" range="{{families}}" range-key="name" value="{{selectedFamilyIndex}}" bindchange="onFamilyChange">
+        <view class="form-value">
+          <text>{{selectedFamilyName || '请选择家庭'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="form-item">
+      <text class="form-label">收支方式</text>
+      <picker mode="selector" range="{{paymentMethodOptions}}" value="{{paymentMethodIndex}}" bindchange="onPaymentMethodChange">
+        <view class="form-value">
+          <text>{{paymentMethod || '请选择收支方式（可选）'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 日期选择 -->
+    <view class="form-item">
+      <text class="form-label">日期</text>
+      <picker mode="date" value="{{billDate}}" bindchange="onDateChange">
+        <view class="form-value">
+          <text>{{billDate}}</text>
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 备注输入 -->
+    <view class="form-item">
+      <text class="form-label">备注</text>
+      <input class="form-input" type="text" placeholder="添加备注（可选）" value="{{description}}" bindinput="onDescriptionInput" />
+    </view>
+
+    <!-- 详细备注 -->
+    <view class="form-item">
+      <text class="form-label">详细说明</text>
+      <textarea class="form-textarea" placeholder="详细说明（可选）" value="{{remark}}" bindinput="onRemarkInput" maxlength="500"></textarea>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="btn btn-primary btn-large submit-btn" bindtap="onSubmit" disabled="{{loading || !canSubmit}}">
+      {{loading ? '保存中...' : '保存账单'}}
+    </button>
+  </view>
+</view>
+
+<!-- 分类选择弹窗 -->
+<view class="category-modal" wx:if="{{showCategoryModal}}">
+  <view class="modal-mask" bindtap="hideCategoryPicker"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">选择分类</text>
+      <text class="modal-close" bindtap="hideCategoryPicker">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="category-tabs">
+        <view class="category-tab {{categoryTab === 'system' ? 'active' : ''}}" bindtap="switchCategoryTab" data-tab="system">
+          系统分类
+        </view>
+        <view class="category-tab {{categoryTab === 'custom' ? 'active' : ''}}" bindtap="switchCategoryTab" data-tab="custom">
+          自定义分类
+        </view>
+      </view>
+
+      <view class="category-grid">
+        <view class="category-item" wx:for="{{filteredCategories}}" wx:key="id" bindtap="selectCategory" data-category="{{item}}">
+          <view class="category-icon" style="background-color: {{item.color}}">
+            {{item.icon || item.name.charAt(0)}}
+          </view>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+
+      <view class="add-category" wx:if="{{categoryTab === 'custom'}}" bindtap="showAddCategoryForm">
+        <view class="add-icon">+</view>
+        <text class="add-text">添加自定义分类</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 添加分类表单 -->
+<view class="add-category-modal" wx:if="{{showAddCategoryForm}}">
+  <view class="modal-mask" bindtap="hideAddCategoryForm"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">添加分类</text>
+      <text class="modal-close" bindtap="hideAddCategoryForm">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">分类名称</text>
+        <input class="input-field" type="text" placeholder="请输入分类名称" value="{{newCategory.name}}" bindinput="onNewCategoryNameInput" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">分类颜色</text>
+        <view class="color-picker">
+          <view class="color-item {{newCategory.color === item ? 'selected' : ''}}" 
+                wx:for="{{colorOptions}}" wx:key="*this"
+                style="background-color: {{item}}"
+                bindtap="selectColor" data-color="{{item}}">
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideAddCategoryForm">取消</button>
+      <button class="btn btn-primary" bindtap="addCustomCategory" disabled="{{!newCategory.name}}">添加</button>
+    </view>
+  </view>
+</view>

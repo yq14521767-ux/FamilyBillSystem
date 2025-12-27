@@ -1,0 +1,67 @@
+.card {
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.faq-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f7f7f7;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+}
+
+.q-prefix {
+  font-size: 26rpx;
+  color: #4CAF50;
+  margin-right: 10rpx;
+}
+
+.q-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.arrow {
+  font-size: 26rpx;
+  color: #cccccc;
+}
+
+.faq-answer {
+  margin-top: 12rpx;
+  padding-left: 40rpx;
+}
+
+.a-prefix {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.a-text {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.contact-item {
+  margin-top: 16rpx;
+}
+
+.contact-label {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.contact-value {
+  font-size: 26rpx;
+  color: #333333;
+}

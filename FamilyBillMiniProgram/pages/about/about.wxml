@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="card about-header">
+    <image class="app-logo" src="/images/logo.png" mode="aspectFit"></image>
+    <text class="app-name">家庭账单管理</text>
+    <text class="app-version">版本号：v1.0.0</text>
+  </view>
+
+  <view class="card">
+    <view class="card-title">产品简介</view>
+    <view class="about-text">
+      <text>家庭账单管理小程序用于记录和统计家庭成员的收支情况，支持多家庭、多成员协作记账，并提供预算提醒和通知功能，帮助你更好地管理家庭财务。</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">开发者信息</view>
+    <view class="about-row">
+      <text class="label">开发者：</text>
+      <text class="value">JC</text>
+    </view>
+    <view class="about-row">
+      <text class="label">联系方式：</text>
+      <text class="value">1767254800@qq.com</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">免责声明</view>
+    <view class="about-text">
+      <text>本小程序仅用于学习和个人记账使用，请勿用于存储敏感信息。由于网络或设备原因导致的数据异常，本应用不承担法律责任。</text>
+    </view>
+  </view>
+</view>

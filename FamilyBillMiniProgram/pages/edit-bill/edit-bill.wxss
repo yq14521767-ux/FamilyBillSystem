@@ -1,0 +1,42 @@
+/* pages/edit-bill/edit-bill.wxss */
+
+.container {
+  padding: 24rpx;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.form-value {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.form-input {
+  flex: 1;
+  text-align: right;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.amount-input {
+  font-size: 36rpx;
+}
+
+.submit-section {
+  margin-top: 40rpx;
+}
+
+.submit-btn {
+  width: 100%;
+}

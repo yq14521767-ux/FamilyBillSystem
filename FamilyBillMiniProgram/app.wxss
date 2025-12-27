@@ -1,0 +1,629 @@
+/* app.wxss */
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 通用样式 */
+.container {
+  padding: 20rpx;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.card-content {
+  font-size: 28rpx;
+  color: #666666;
+  line-height: 1.6;
+}
+
+/* 按钮样式 */
+.btn {
+  border-radius: 35rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  padding: 20rpx 40rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: #ffffff;
+}
+
+.btn-primary:active {
+  background-color: #45a049;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333333;
+}
+
+.btn-secondary:active {
+  background-color: #e0e0e0;
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+.btn-danger:active {
+  background-color: #da190b;
+}
+
+.btn-small {
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+}
+
+.btn-large {
+  padding: 30rpx 60rpx;
+  font-size: 32rpx;
+}
+
+/* ==================== 全局弹窗样式 ==================== */
+
+/* 遮罩层 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.modal-mask.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 弹窗容器 */
+.modal-container {
+  background-color: #ffffff;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 24rpx;
+  width: 85%;
+  max-width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+  transform: translateY(50rpx);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.modal-mask.show .modal-container {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* 弹窗头部 */
+.modal-header {
+  padding: 40rpx 30rpx 20rpx;
+  text-align: center;
+  position: relative;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-subtitle {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 8rpx;
+}
+
+/* 弹窗内容 */
+.modal-content {
+  padding: 30rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 弹窗底部 */
+.modal-footer {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+  padding: 20rpx 30rpx;
+  background-color: #ffffff;
+  border-bottom-left-radius: 24rpx;
+  border-bottom-right-radius: 24rpx;
+}
+
+.modal-button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  position: relative;
+  border-radius: 3rpx;
+  transition: all 0.2s ease;
+  margin: 0 10rpx;
+}
+
+.modal-button:first-child {
+  margin-left: 0;
+}
+
+.modal-button:last-child {
+  margin-right: 0;
+}
+
+.modal-button.primary {
+  background-color: #4CAF50;
+  color: #ffffff;
+}
+
+.modal-button.primary:active {
+  background-color: #45a049;
+  transform: translateY(2rpx);
+}
+
+.modal-button.default {
+  background-color: #f0f0f0;
+  color: #666666;
+}
+
+.modal-button.default:active {
+  background-color: #e0e0e0;
+  transform: translateY(2rpx);
+}
+
+.modal-button.danger {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+.modal-button.danger:active {
+  background-color: #da190b;
+  transform: translateY(2rpx);
+}
+
+/* 关闭按钮 */
+.modal-close {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  width: 50rpx;
+  height: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.modal-close:active {
+  background-color: #e0e0e0;
+  transform: rotate(90deg) scale(0.9);
+}
+
+/* 输入框组 */
+.modal-input-group {
+  margin-bottom: 30rpx;
+}
+
+.modal-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.modal-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #f8f8f8;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  border-color: #4CAF50;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4rpx rgba(76, 175, 80, 0.2);
+}
+
+/* 单选按钮组 */
+.radio-group {
+  display: flex;
+  margin: 20rpx 0;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 2rpx solid #e0e0e0;
+}
+
+.radio-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  color: #666666;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.radio-item:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.radio-item.selected {
+  background-color: #4CAF50;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 提示信息 */
+.modal-tip {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 8rpx;
+  line-height: 1.4;
+}
+
+.modal-tip.error {
+  color: #f44336;
+}
+
+.modal-tip.success {
+  color: #4CAF50;
+}
+
+/* 加载中状态 */
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 响应式调整 */
+@media (min-width: 600rpx) {
+  .modal-container {
+    width: 75%;
+  }
+}
+
+/* ==================== 输入框样式 ==================== */
+.input-group {
+  margin-bottom: 30rpx;
+}
+
+.input-label {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 10rpx;
+  font-weight: 500;
+}
+
+.input-field {
+  background-color: #f8f8f8;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.input-field:focus {
+  border-color: #4CAF50;
+  background-color: #ffffff;
+}
+
+/* 列表样式 */
+.list-item {
+  background-color: #ffffff;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:active {
+  background-color: #f8f8f8;
+}
+
+.list-item-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+.list-item-content {
+  flex: 1;
+}
+
+.list-item-title {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.list-item-subtitle {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.list-item-action {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 金额样式 */
+.amount {
+  font-weight: 600;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.amount-income {
+  color: #4CAF50;
+}
+
+.amount-expense {
+  color: #f44336;
+}
+
+.amount-large {
+  font-size: 48rpx;
+}
+
+.amount-medium {
+  font-size: 32rpx;
+}
+
+.amount-small {
+  font-size: 28rpx;
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.tag-primary {
+  background-color: #e8f5e8;
+  color: #4CAF50;
+}
+
+.tag-secondary {
+  background-color: #f0f0f0;
+  color: #666666;
+}
+
+.tag-danger {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+.tag-warning {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background-color: #e0e0e0;
+  margin: 20rpx 0;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-state-icon {
+  font-size: 120rpx;
+  color: #cccccc;
+  margin-bottom: 20rpx;
+}
+
+.empty-state-text {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 40rpx;
+}
+
+/* 加载状态 */
+.loading {
+  text-align: center;
+  padding: 40rpx;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+/* 工具类 */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+.mt-20 {
+  margin-top: 20rpx;
+}
+
+.mt-30 {
+  margin-top: 30rpx;
+}
+
+.mb-10 {
+  margin-bottom: 10rpx;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
+}
+
+.mb-30 {
+  margin-bottom: 30rpx;
+}
+
+.ml-10 {
+  margin-left: 10rpx;
+}
+
+.ml-20 {
+  margin-left: 20rpx;
+}
+
+.mr-10 {
+  margin-right: 10rpx;
+}
+
+.mr-20 {
+  margin-right: 20rpx;
+}
+
+.p-10 {
+  padding: 10rpx;
+}
+
+.p-20 {
+  padding: 20rpx;
+}
+
+.p-30 {
+  padding: 30rpx;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.text-primary {
+  color: #4CAF50;
+}
+
+.text-danger {
+  color: #f44336;
+}
+
+.text-warning {
+  color: #ff9800;
+}
+
+.text-muted {
+  color: #999999;
+}
+
+.text-small {
+  font-size: 24rpx;
+}
+
+.text-large {
+  font-size: 32rpx;
+}

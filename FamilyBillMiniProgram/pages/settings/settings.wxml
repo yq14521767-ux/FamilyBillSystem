@@ -1,0 +1,39 @@
+<view class="container">
+  <view class="card">
+    <view class="card-title">通用设置</view>
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-title">开启预算提醒</text>
+        <text class="setting-desc">当预算接近或超过上限时提醒我</text>
+      </view>
+      <switch checked="{{settings.enableBudgetAlert}}" bindchange="onToggleBudgetAlert" />
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-title">消息中心通知</text>
+        <text class="setting-desc">首页显示未读消息红点提示</text>
+      </view>
+      <switch checked="{{settings.enableNotificationBadge}}" bindchange="onToggleNotificationBadge" />
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-title">记账默认使用当前家庭</text>
+        <text class="setting-desc">添加账单时默认选中当前家庭</text>
+      </view>
+      <switch checked="{{settings.defaultToCurrentFamily}}" bindchange="onToggleDefaultFamily" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">数据与隐私</view>
+    <view class="setting-item" bindtap="clearLocalCache">
+      <view class="setting-info">
+        <text class="setting-title">清理本地缓存</text>
+        <text class="setting-desc">包括本地分类缓存、家庭选择等</text>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+  </view>
+</view>

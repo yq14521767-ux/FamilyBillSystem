@@ -1,0 +1,20 @@
+<!-- pages/edit-family/edit-family.wxml -->
+<view class="container">
+  <view class="form-card card">
+    <view class="form-item">
+      <text class="label">家庭名称</text>
+      <input class="input" type="text" placeholder="请输入家庭名称" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-item form-item-textarea">
+      <text class="label">家庭简介</text>
+      <textarea class="textarea" placeholder="家庭简介（可选）" value="{{description}}" bindinput="onDescriptionInput" />
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn btn-primary" bindtap="saveFamily" disabled="{{saving}}">
+      {{saving ? '保存中...' : '保存'}}
+    </button>
+  </view>
+</view>

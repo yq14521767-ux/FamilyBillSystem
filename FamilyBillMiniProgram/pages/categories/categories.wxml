@@ -1,0 +1,147 @@
+<!--pages/categories/categories.wxml-->
+<view class="container">
+  <!-- 类型切换 -->
+  <view class="type-tabs">
+    <view class="type-tab {{categoryType === 2 ? 'active expense' : ''}}" bindtap="switchType" data-type="2">
+      支出分类
+    </view>
+    <view class="type-tab {{categoryType === 1 ? 'active income' : ''}}" bindtap="switchType" data-type="1">
+      收入分类
+    </view>
+  </view>
+
+  <!-- 系统分类 -->
+  <view class="category-section card">
+    <text class="section-title">系统分类</text>
+    <view class="category-grid">
+      <view class="category-item" wx:for="{{systemCategories}}" wx:key="id">
+        <view class="category-icon" style="background-color: {{item.color}}">
+          {{item.icon || item.name.charAt(0)}}
+        </view>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义分类 -->
+  <view class="category-section card">
+    <view class="section-header">
+      <text class="section-title">自定义分类</text>
+      <text class="add-category" bindtap="showAddCategoryModal">添加</text>
+    </view>
+    
+    <view class="category-grid" wx:if="{{customCategories.length > 0}}">
+      <view class="category-item" wx:for="{{customCategories}}" wx:key="id" bindtap="showCategoryActions" bindlongpress="showCategoryActions" data-category="{{item}}">
+        <view class="category-icon" style="background-color: {{item.color}}">
+          {{item.icon || item.name.charAt(0)}}
+        </view>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </view>
+    
+    <view class="empty-custom" wx:else>
+      <text class="empty-text">暂无自定义分类</text>
+      <button class="btn btn-primary btn-small" bindtap="showAddCategoryModal">添加分类</button>
+    </view>
+  </view>
+</view>
+
+<!-- 添加分类弹窗 -->
+<view class="add-category-modal" wx:if="{{showAddCategoryModal}}">
+  <view class="modal-mask" bindtap="hideAddCategoryModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">添加分类</text>
+      <text class="modal-close" bindtap="hideAddCategoryModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">分类名称</text>
+        <input class="input-field" type="text" placeholder="请输入分类名称" value="{{categoryForm.name}}" bindinput="onCategoryNameInput" maxlength="10" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">分类图标</text>
+        <input class="input-field" type="text" placeholder="请输入图标（可选）" value="{{categoryForm.icon}}" bindinput="onCategoryIconInput" maxlength="2" />
+        <text class="input-tip">可以输入emoji表情作为图标</text>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">分类颜色</text>
+        <view class="color-picker">
+          <view class="color-item {{categoryForm.color === item ? 'selected' : ''}}" 
+                wx:for="{{colorOptions}}" wx:key="*this"
+                style="background-color: {{item}}"
+                bindtap="selectColor" data-color="{{item}}">
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideAddCategoryModal">取消</button>
+      <button class="btn btn-primary" bindtap="addCategory" disabled="{{!categoryForm.name || addLoading}}">
+        {{addLoading ? '添加中...' : '添加'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 编辑分类弹窗 -->
+<view class="edit-category-modal" wx:if="{{showEditCategoryModal}}">
+  <view class="modal-mask" bindtap="hideEditCategoryModal"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">编辑分类</text>
+      <text class="modal-close" bindtap="hideEditCategoryModal">×</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">分类名称</text>
+        <input class="input-field" type="text" placeholder="请输入分类名称" value="{{editForm.name}}" bindinput="onEditNameInput" maxlength="10" />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">分类图标</text>
+        <input class="input-field" type="text" placeholder="请输入图标（可选）" value="{{editForm.icon}}" bindinput="onEditIconInput" maxlength="2" />
+        <text class="input-tip">可以输入emoji表情作为图标</text>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">分类颜色</text>
+        <view class="color-picker">
+          <view class="color-item {{editForm.color === item ? 'selected' : ''}}" 
+                wx:for="{{colorOptions}}" wx:key="*this"
+                style="background-color: {{item}}"
+                bindtap="selectEditColor" data-color="{{item}}">
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn btn-secondary" bindtap="hideEditCategoryModal">取消</button>
+      <button class="btn btn-primary" bindtap="updateCategory" disabled="{{!editForm.name || editLoading}}">
+        {{editLoading ? '保存中...' : '保存'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 分类操作弹窗 -->
+<view class="category-actions-modal" wx:if="{{showCategoryActions}}">
+  <view class="modal-mask" bindtap="hideCategoryActions"></view>
+  <view class="actions-content">
+    <view class="action-item" bindtap="editCategory">
+      <text class="action-text">编辑分类</text>
+    </view>
+    <view class="action-item danger" bindtap="deleteCategory">
+      <text class="action-text">删除分类</text>
+    </view>
+    <view class="action-item" bindtap="hideCategoryActions">
+      <text class="action-text">取消</text>
+    </view>
+  </view>
+</view>
