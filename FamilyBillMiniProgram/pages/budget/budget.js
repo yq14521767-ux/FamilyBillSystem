@@ -7,6 +7,8 @@ Page({
     selectedYear: new Date().getFullYear(),
     selectedMonth: new Date().getMonth() + 1,
     timeText: '',
+    // 预算周期：monthly | quarterly | yearly
+    selectedPeriod: 'monthly',
     
     // 预算数据
     budgets: [],
@@ -41,6 +43,7 @@ Page({
     // 时间选择器
     years: [],
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    quarters: [1, 4, 7, 10], // 每个季度的起始月份
     timePickerValue: [0, 0],
     
     // 加载状态
@@ -73,12 +76,26 @@ Page({
       years.push(i);
     }
     
-    const yearIndex = years.indexOf(this.data.selectedYear);
-    const monthIndex = this.data.selectedMonth - 1;
-    
+    const { selectedYear, selectedMonth, selectedPeriod, months, quarters } = this.data;
+
+    let yearIndex = years.indexOf(selectedYear);
+    if (yearIndex < 0) {
+      const currentIndex = years.indexOf(currentYear);
+      yearIndex = currentIndex >= 0 ? currentIndex : 0;
+    }
+
+    let secondIndex = 0;
+    if (selectedPeriod === 'monthly') {
+      const idx = months.indexOf(selectedMonth);
+      secondIndex = idx >= 0 ? idx : 0;
+    } else if (selectedPeriod === 'quarterly') {
+      const idx = quarters.indexOf(selectedMonth);
+      secondIndex = idx >= 0 ? idx : 0;
+    }
+
     this.setData({
       years,
-      timePickerValue: [yearIndex, monthIndex]
+      timePickerValue: [yearIndex, secondIndex]
     });
   },
 
@@ -100,7 +117,7 @@ Page({
   // 加载预算数据
   async loadBudgets() {
     try {
-      const { selectedYear, selectedMonth, selectedFamilyId } = this.data;
+      const { selectedYear, selectedMonth, selectedFamilyId, selectedPeriod } = this.data;
       let familyId = selectedFamilyId;
 
       // 如果未通过下拉选择家庭，则回退到当前家庭
@@ -111,7 +128,7 @@ Page({
         }
       }
       
-      let url = `/budgets?year=${selectedYear}&month=${selectedMonth}`;
+      let url = `/budgets?year=${selectedYear}&month=${selectedMonth}&period=${selectedPeriod}`;
       if (familyId) {
         url += `&familyId=${familyId}`;
       }
@@ -151,16 +168,32 @@ Page({
 
   // 计算时间显示文本
   updateTimeText() {
-    const { selectedYear, selectedMonth } = this.data;
+    const { selectedYear, selectedMonth, selectedPeriod } = this.data;
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
 
     let timeText = '';
-    if (selectedYear === currentYear && selectedMonth === currentMonth) {
-      timeText = '本月预算';
-    } else {
-      timeText = `${selectedYear}年${selectedMonth}月预算`;
+    if (selectedPeriod === 'monthly') {
+      if (selectedYear === currentYear && selectedMonth === currentMonth) {
+        timeText = '本月预算';
+      } else {
+        timeText = `${selectedYear}年${selectedMonth}月预算`;
+      }
+    } else if (selectedPeriod === 'quarterly') {
+      const currentQuarter = Math.floor((currentMonth - 1) / 3) + 1;
+      const selectedQuarter = Math.floor((selectedMonth - 1) / 3) + 1;
+      if (selectedYear === currentYear && selectedQuarter === currentQuarter) {
+        timeText = '本季度预算';
+      } else {
+        timeText = `${selectedYear}年第${selectedQuarter}季度预算`;
+      }
+    } else if (selectedPeriod === 'yearly') {
+      if (selectedYear === currentYear) {
+        timeText = '本年度预算';
+      } else {
+        timeText = `${selectedYear}年度预算`;
+      }
     }
 
     this.setData({ timeText });
@@ -185,14 +218,61 @@ Page({
 
   // 确认时间选择
   confirmTimePicker() {
-    const { years, months, timePickerValue } = this.data;
-    const selectedYear = years[timePickerValue[0]];
-    const selectedMonth = months[timePickerValue[1]];
-    
+    const { years, months, quarters, timePickerValue, selectedPeriod } = this.data;
+
+    const yearIndex = (timePickerValue && timePickerValue.length > 0) ? timePickerValue[0] : 0;
+    const selectedYear = years[yearIndex] || years[0];
+
+    let selectedMonth = this.data.selectedMonth;
+
+    if (selectedPeriod === 'monthly') {
+      const monthIndex = (timePickerValue && timePickerValue.length > 1) ? timePickerValue[1] : 0;
+      selectedMonth = months[monthIndex] || months[0];
+    } else if (selectedPeriod === 'quarterly') {
+      const quarterIndex = (timePickerValue && timePickerValue.length > 1) ? timePickerValue[1] : 0;
+      // 这里 quarters 存的是每个季度的起始月份：1、4、7、10
+      selectedMonth = quarters[quarterIndex] || quarters[0];
+    } else if (selectedPeriod === 'yearly') {
+      // 年度预算只按年份统计，月份字段对后端影响不大，这里统一设置为 1
+      selectedMonth = 1;
+    }
+
     this.setData({
       selectedYear,
       selectedMonth,
       showTimePicker: false
+    });
+
+    this.updateTimeText();
+    this.loadBudgets();
+  },
+
+  // 切换预算周期
+  onPeriodTabTap(e) {
+    const period = e.currentTarget.dataset.period;
+    if (!period || period === this.data.selectedPeriod) return;
+
+    const { years, selectedYear, selectedMonth, months, quarters } = this.data;
+
+    let yearIndex = years.indexOf(selectedYear);
+    if (yearIndex < 0) {
+      yearIndex = 0;
+    }
+
+    let secondIndex = 0;
+    if (period === 'monthly') {
+      const idx = months.indexOf(selectedMonth);
+      secondIndex = idx >= 0 ? idx : 0;
+    } else if (period === 'quarterly') {
+      const idx = quarters.indexOf(selectedMonth);
+      secondIndex = idx >= 0 ? idx : 0;
+    } else if (period === 'yearly') {
+      secondIndex = 0;
+    }
+
+    this.setData({
+      selectedPeriod: period,
+      timePickerValue: [yearIndex, secondIndex]
     });
 
     this.updateTimeText();
@@ -337,7 +417,7 @@ Page({
 
   // 保存预算
   async saveBudget() {
-    const { budgetForm, selectedYear, selectedMonth, isEditMode, selectedFamilyId } = this.data;
+    const { budgetForm, selectedYear, selectedMonth, selectedPeriod, isEditMode, selectedFamilyId } = this.data;
     
     if (!budgetForm.categoryId) {
       app.showToast('请选择分类');
@@ -368,6 +448,7 @@ Page({
         amount: parseFloat(budgetForm.amount),
         year: selectedYear,
         month: selectedMonth,
+        period: selectedPeriod,
         description: budgetForm.description.trim() || null,
         familyId: familyId
       };

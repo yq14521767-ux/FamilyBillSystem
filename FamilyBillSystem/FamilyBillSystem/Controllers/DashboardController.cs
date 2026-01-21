@@ -190,9 +190,10 @@ namespace FamilyBillSystem.Controllers
                 }
 
                 var utilizationRate = (spent / budget.Amount) * 100;
+                var alertThreshold = budget.AlertThreshold > 0 ? budget.AlertThreshold : 80m;
 
-                // 使用率超过80%的预算生成提醒
-                if (utilizationRate >= 80)
+                // 使用预算自身配置的预警阈值（默认为 80%）生成提醒
+                if (utilizationRate >= alertThreshold)
                 {
                     var isOverBudget = spent > budget.Amount;
                     var category = budget.Category;

@@ -1,6 +1,6 @@
 using FamilyBillSystem.Models;
-using FamilyBillSystem.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using FamilyBillSystem.Services;
 
 namespace FamilyBillSystem.Data
 {
@@ -14,8 +14,6 @@ namespace FamilyBillSystem.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Bill> Bills { get; set; }
         public DbSet<Budget> Budgets { get; set; }
-        public DbSet<BillTemplate> BillTemplates { get; set; }
-        public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<FamilyStats> FamilyStats { get; set; }
 
@@ -40,7 +38,6 @@ namespace FamilyBillSystem.Data
                 entity.HasIndex(u => u.Phone);
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasIndex(u => u.Status);
-                entity.Property(u => u.Settings).HasColumnType("json");
             });
 
             // Family 配置
@@ -49,7 +46,6 @@ namespace FamilyBillSystem.Data
                 entity.HasIndex(f => f.CreatorId);
                 entity.HasIndex(f => f.InviteCode).IsUnique();
                 entity.HasIndex(f => f.Status);
-                entity.Property(f => f.Settings).HasColumnType("json");
                 entity.HasOne(f => f.Creator)
                     .WithMany(u => u.CreatedFamilies)
                     .HasForeignKey(f => f.CreatorId)
@@ -62,7 +58,6 @@ namespace FamilyBillSystem.Data
                 entity.HasIndex(fm => new { fm.FamilyId, fm.UserId }).IsUnique();
                 entity.HasIndex(fm => fm.FamilyId);
                 entity.HasIndex(fm => fm.UserId);
-                entity.Property(fm => fm.Permissions).HasColumnType("json");
             });
 
             // Category 配置
@@ -96,12 +91,6 @@ namespace FamilyBillSystem.Data
                     .OnDelete(DeleteBehavior.SetNull);
                     
 
-            });
-
-            // NotificationTemplate 配置
-            modelBuilder.Entity<NotificationTemplate>(entity =>
-            {
-                entity.HasIndex(t => t.Code).IsUnique();
             });
 
             // Notification 配置

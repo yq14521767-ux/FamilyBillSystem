@@ -23,7 +23,7 @@ namespace FamilyBillSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBudgets(int year, int month, int? familyId = null)
+        public async Task<IActionResult> GetBudgets(int year, int month, int? familyId = null, string period = "monthly")
         {
             try
             {
@@ -52,17 +52,34 @@ namespace FamilyBillSystem.Controllers
                     familyIds = new[] { familyId.Value };
                 }
 
-                var startDate = new DateTime(year, month, 1);
-                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var normalizedPeriod = NormalizePeriod(period);
+                if (normalizedPeriod == null)
+                {
+                    return BadRequest(new { message = "无效的预算周期类型" });
+                }
 
-                var budgets = await _context.Budgets
+                GetPeriodDateRange(normalizedPeriod, year, month, out var startDate, out var endDate);
+
+                var budgetsQuery = _context.Budgets
                     .Include(b => b.Category)
                     .Where(b => familyIds.Contains(b.FamilyId) &&
+                                b.Period == normalizedPeriod &&
                                 b.Year == year &&
-                                b.Month == month &&
                                 b.DeletedAt == null &&
-                                b.IsActive)
-                    .ToListAsync();
+                                b.IsActive);
+
+                if (normalizedPeriod == "monthly")
+                {
+                    budgetsQuery = budgetsQuery.Where(b => b.Month == month);
+                }
+                else if (normalizedPeriod == "quarterly")
+                {
+                    var quarterStartMonth = GetQuarterStartMonth(month);
+                    budgetsQuery = budgetsQuery.Where(b => b.Month == quarterStartMonth);
+                }
+                // yearly 不需要额外的月份过滤
+
+                var budgets = await budgetsQuery.ToListAsync();
 
                 var monthlyExpenses = await _context.Bills
                     .Where(b => familyIds.Contains(b.FamilyId) &&
@@ -118,7 +135,7 @@ namespace FamilyBillSystem.Controllers
 
         // GET: api/budget/summary
         [HttpGet("summary")]
-        public async Task<IActionResult> GetBudgetSummary(int year, int month, int? familyId = null)
+        public async Task<IActionResult> GetBudgetSummary(int year, int month, int? familyId = null, string period = "monthly")
         {
             try
             {
@@ -159,17 +176,33 @@ namespace FamilyBillSystem.Controllers
                     familyIds = new[] { familyId.Value };
                 }
 
-                var startDate = new DateTime(year, month, 1);
-                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var normalizedPeriod = NormalizePeriod(period);
+                if (normalizedPeriod == null)
+                {
+                    return BadRequest(new { message = "无效的预算周期类型" });
+                }
 
-                // 获取当前月份、当前家庭范围内的实际预算记录
+                GetPeriodDateRange(normalizedPeriod, year, month, out var startDate, out var endDate);
+
+                // 获取当前周期、当前家庭范围内的实际预算记录
                 var budgetsQuery = _context.Budgets
                     .Include(b => b.Category)
                     .Where(b => familyIds.Contains(b.FamilyId) &&
+                                b.Period == normalizedPeriod &&
                                 b.Year == year &&
-                                b.Month == month &&
                                 b.DeletedAt == null &&
                                 b.IsActive);
+
+                if (normalizedPeriod == "monthly")
+                {
+                    budgetsQuery = budgetsQuery.Where(b => b.Month == month);
+                }
+                else if (normalizedPeriod == "quarterly")
+                {
+                    var quarterStartMonth = GetQuarterStartMonth(month);
+                    budgetsQuery = budgetsQuery.Where(b => b.Month == quarterStartMonth);
+                }
+                // yearly 不需要额外的月份过滤
 
                 var budgetsInMonth = await budgetsQuery.ToListAsync();
 
@@ -222,7 +255,8 @@ namespace FamilyBillSystem.Controllers
                         b.CategoryId,
                         b.Amount,
                         UsedAmount = used,
-                        b.Category
+                        b.Category,
+                        b.AlertThreshold
                     };
                 }).ToList();
 
@@ -242,6 +276,7 @@ namespace FamilyBillSystem.Controllers
                     var budget = b.Amount;
                     var spent = b.UsedAmount;
                     var utilizationRate = budget > 0 ? (spent / budget) * 100 : 0;
+                    var alertThreshold = b.AlertThreshold > 0 ? b.AlertThreshold : 80m;
 
                     return new
                     {
@@ -253,13 +288,14 @@ namespace FamilyBillSystem.Controllers
                         spent,
                         remaining = Math.Max(0, budget - spent),
                         utilizationRate = Math.Round(utilizationRate, 2),
-                        isOverBudget = spent > budget
+                        isOverBudget = spent > budget,
+                        alertThreshold
                     };
                 }).ToList();
 
                 // 生成预算提醒
                 var alerts = categoryBudgets
-                    .Where(cb => cb.utilizationRate >= 80)
+                    .Where(cb => cb.utilizationRate >= cb.alertThreshold)
                     .Select(cb => new
                     {
                         type = cb.isOverBudget ? "over_budget" : "budget_warning",
@@ -279,7 +315,7 @@ namespace FamilyBillSystem.Controllers
 
                     var existingMessages = await _context.Notifications
                         .Where(n =>
-                            n.UserId == userId &&
+                            n.UserId == userId.Value &&
                             n.Title == "预算提醒" &&
                             n.CreatedAt >= monthStart &&
                             alertMessages.Contains(n.Message))
@@ -365,10 +401,26 @@ namespace FamilyBillSystem.Controllers
                     .Where(x => x.CategoryId.HasValue)
                     .ToDictionaryAsync(x => x.CategoryId!.Value, x => x.Amount);
 
+                // 获取当月的真实预算金额（仅使用月度预算，以避免与季度/年度预算重复统计）
+                var budgetAmounts = await _context.Budgets
+                    .Where(b => userFamilyIds.Contains(b.FamilyId) &&
+                                b.Period == "monthly" &&
+                                b.Year == year &&
+                                b.Month == month &&
+                                b.DeletedAt == null &&
+                                b.IsActive)
+                    .GroupBy(b => b.CategoryId)
+                    .Select(g => new
+                    {
+                        CategoryId = g.Key,
+                        Amount = g.Sum(b => b.Amount)
+                    })
+                    .ToDictionaryAsync(x => x.CategoryId, x => x.Amount);
+
                 var categoryBudgets = expenseCategories.Select(c =>
                 {
                     var actualAmount = actualExpenses.GetValueOrDefault(c.Id, 0m);
-                    var budgetAmount = GetDefaultBudgetForCategory(c.Name);
+                    var budgetAmount = budgetAmounts.GetValueOrDefault(c.Id, 0m);
 
                     return new
                     {
@@ -416,8 +468,31 @@ namespace FamilyBillSystem.Controllers
                 if (request.Amount <= 0)
                     return BadRequest(new { message = "预算金额必须大于0" });
 
-                if (request.Year <= 0 || request.Month <= 0 || request.Month > 12)
-                    return BadRequest(new { message = "无效的年份或月份" });
+                if (request.Year <= 0)
+                    return BadRequest(new { message = "无效的年份" });
+
+                var normalizedPeriod = NormalizePeriod(request.Period);
+                if (normalizedPeriod == null)
+                    return BadRequest(new { message = "无效的预算周期类型" });
+
+                int? storedMonth = null;
+                if (normalizedPeriod == "monthly")
+                {
+                    if (!request.Month.HasValue || request.Month < 1 || request.Month > 12)
+                        return BadRequest(new { message = "月度预算必须提供 1-12 的月份" });
+                    storedMonth = request.Month.Value;
+                }
+                else if (normalizedPeriod == "quarterly")
+                {
+                    if (!request.Month.HasValue || request.Month < 1 || request.Month > 12)
+                        return BadRequest(new { message = "季度预算的月份必须在 1-12 之间（可以是季度第一个月或该季度内任意月份）" });
+                    storedMonth = GetQuarterStartMonth(request.Month.Value);
+                }
+                else if (normalizedPeriod == "yearly")
+                {
+                    // 年度预算不需要月份
+                    storedMonth = null;
+                }
 
                 var category = await _context.Categories
                     .FirstOrDefaultAsync(c => c.Id == request.CategoryId && c.DeletedAt == null);
@@ -433,9 +508,9 @@ namespace FamilyBillSystem.Controllers
                     FamilyId = familyId,
                     CategoryId = request.CategoryId,
                     Amount = request.Amount,
-                    Period = "monthly",
+                    Period = normalizedPeriod,
                     Year = request.Year,
-                    Month = request.Month,
+                    Month = storedMonth,
                     UsedAmount = 0m,
                     AlertThreshold = 80m,
                     IsActive = true,
@@ -482,8 +557,31 @@ namespace FamilyBillSystem.Controllers
                 if (request.Amount <= 0)
                     return BadRequest(new { message = "预算金额必须大于0" });
 
-                if (request.Year <= 0 || request.Month <= 0 || request.Month > 12)
-                    return BadRequest(new { message = "无效的年份或月份" });
+                if (request.Year <= 0)
+                    return BadRequest(new { message = "无效的年份" });
+
+                var normalizedPeriod = NormalizePeriod(request.Period);
+                if (normalizedPeriod == null)
+                    return BadRequest(new { message = "无效的预算周期类型" });
+
+                int? storedMonth = null;
+                if (normalizedPeriod == "monthly")
+                {
+                    if (!request.Month.HasValue || request.Month < 1 || request.Month > 12)
+                        return BadRequest(new { message = "月度预算必须提供 1-12 的月份" });
+                    storedMonth = request.Month.Value;
+                }
+                else if (normalizedPeriod == "quarterly")
+                {
+                    if (!request.Month.HasValue || request.Month < 1 || request.Month > 12)
+                        return BadRequest(new { message = "季度预算的月份必须在 1-12 之间（可以是季度第一个月或该季度内任意月份）" });
+                    storedMonth = GetQuarterStartMonth(request.Month.Value);
+                }
+                else if (normalizedPeriod == "yearly")
+                {
+                    // 年度预算不需要月份
+                    storedMonth = null;
+                }
 
                 var category = await _context.Categories
                     .FirstOrDefaultAsync(c => c.Id == request.CategoryId && c.DeletedAt == null);
@@ -496,8 +594,9 @@ namespace FamilyBillSystem.Controllers
 
                 budget.CategoryId = request.CategoryId;
                 budget.Amount = request.Amount;
+                budget.Period = normalizedPeriod;
                 budget.Year = request.Year;
-                budget.Month = request.Month;
+                budget.Month = storedMonth;
                 budget.Description = request.Description;
                 budget.UpdatedAt = DateTime.Now;
 
@@ -552,23 +651,63 @@ namespace FamilyBillSystem.Controllers
             return int.TryParse(userIdClaim, out int userId) ? userId : null;
         }
 
-        // 模拟预算金额的方法（实际项目中应该从预算表获取）
-        private decimal GetDefaultBudgetForCategory(string categoryName)
+        /// <summary>
+        /// 规范化周期字符串：monthly / quarterly / yearly
+        /// </summary>
+        private static string? NormalizePeriod(string? period)
         {
-            return categoryName.ToLower() switch
+            if (string.IsNullOrWhiteSpace(period)) return "monthly";
+
+            var p = period.Trim().ToLower();
+            return p switch
             {
-                "餐饮" or "食物" or "外卖" => 1500m,
-                "交通" or "出行" => 800m,
-                "购物" or "服装" => 1000m,
-                "娱乐" or "休闲" => 600m,
-                "医疗" or "健康" => 500m,
-                "教育" or "学习" => 800m,
-                "住房" or "房租" => 3000m,
-                "水电费" or "生活费" => 400m,
-                "通讯" or "话费" => 200m,
-                "其他" => 500m,
-                _ => 300m
+                "monthly" or "month" => "monthly",
+                "quarterly" or "quarter" => "quarterly",
+                "yearly" or "year" or "annual" => "yearly",
+                _ => null
             };
+        }
+
+        /// <summary>
+        /// 根据传入的月份(1-12)获取对应季度的起始月份
+        /// </summary>
+        private static int GetQuarterStartMonth(int month)
+        {
+            if (month < 1 || month > 12)
+            {
+                throw new ArgumentOutOfRangeException(nameof(month), "月份必须在 1-12 之间");
+            }
+
+            var quarter = (month - 1) / 3 + 1; // 1-3 -> 1, 4-6 -> 2, 7-9 -> 3, 10-12 -> 4
+            return (quarter - 1) * 3 + 1;      // 1 -> 1, 2 -> 4, 3 -> 7, 4 -> 10
+        }
+
+        /// <summary>
+        /// 根据周期类型和传入的年份、月份，计算该周期的起止日期
+        /// </summary>
+        private static void GetPeriodDateRange(string period, int year, int month, out DateTime startDate, out DateTime endDate)
+        {
+            switch (period)
+            {
+                case "monthly":
+                    startDate = new DateTime(year, month, 1);
+                    endDate = startDate.AddMonths(1).AddDays(-1);
+                    break;
+
+                case "quarterly":
+                    var quarterStartMonth = GetQuarterStartMonth(month);
+                    startDate = new DateTime(year, quarterStartMonth, 1);
+                    endDate = startDate.AddMonths(3).AddDays(-1);
+                    break;
+
+                case "yearly":
+                    startDate = new DateTime(year, 1, 1);
+                    endDate = new DateTime(year, 12, 31);
+                    break;
+
+                default:
+                    throw new ArgumentException("无效的预算周期类型", nameof(period));
+            }
         }
     }
 
@@ -578,7 +717,8 @@ namespace FamilyBillSystem.Controllers
         public int CategoryId { get; set; }
         public decimal Amount { get; set; }
         public int Year { get; set; }
-        public int Month { get; set; }
+        public int? Month { get; set; }
+        public string Period { get; set; } = "monthly";
         public string? Description { get; set; }
     }
 
@@ -587,7 +727,8 @@ namespace FamilyBillSystem.Controllers
         public int CategoryId { get; set; }
         public decimal Amount { get; set; }
         public int Year { get; set; }
-        public int Month { get; set; }
+        public int? Month { get; set; }
+        public string Period { get; set; } = "monthly";
         public string? Description { get; set; }
     }
 }

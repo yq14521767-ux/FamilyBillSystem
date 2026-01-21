@@ -11,8 +11,6 @@ namespace FamilyBillSystem.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int? TemplateId { get; set; }  //模板Id
-
         public int? FamilyId { get; set; }  //所属家庭Id
 
         public int? UserId { get; set; }  //接收用户Id
@@ -35,9 +33,6 @@ namespace FamilyBillSystem.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;  //创建时间
 
         //导航属性
-        [JsonIgnore]
-        public virtual NotificationTemplate Template { get; set; }
-
         [JsonIgnore]
         public virtual Family Family { get; set; }
 

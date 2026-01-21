@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using FamilyBillSystem.Interfaces;
+using FamilyBillSystem.Services;
 
 namespace FamilyBillSystem.Models
 {

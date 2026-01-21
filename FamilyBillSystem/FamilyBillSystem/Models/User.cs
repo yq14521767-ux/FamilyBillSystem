@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FamilyBillSystem.Interfaces;
+using FamilyBillSystem.Services;
 
 namespace FamilyBillSystem.Models
 {
@@ -56,9 +56,6 @@ namespace FamilyBillSystem.Models
         [Column(TypeName = "varchar(50)")]
         public string Status { get; set; } = "active";  //账户状态，active-活跃，frozen-冻结
 
-        [Column(TypeName = "text")]
-        public string Settings { get; set; } = "{}";  //用户偏好设置
-
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(TypeName = "datetime")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;  //用户创建时间        [Column(TypeName = "datetime")]
@@ -79,16 +76,6 @@ namespace FamilyBillSystem.Models
         
         [JsonIgnore]
         public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-        
-        [JsonIgnore]
-        public virtual ICollection<NotificationTemplate> CreatedTemplates { get; set; } = new List<NotificationTemplate>();
 
-        //处理设置 JSON 的辅助方法
-        [NotMapped]
-        public JsonDocument SettingsJson
-        {
-            get => JsonDocument.Parse(string.IsNullOrEmpty(Settings) ? "{}" : Settings);
-            set => Settings = value != null ? JsonSerializer.Serialize(value) : "{}";
-        }
     }
 }

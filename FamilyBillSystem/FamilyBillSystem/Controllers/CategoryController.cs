@@ -199,6 +199,10 @@ namespace FamilyBillSystem.Controllers
                 if (category == null || category.DeletedAt != null)
                     return NotFound("分类不存在");
 
+                // 系统分类不允许修改
+                if (category.FamilyId == null)
+                    return BadRequest(new { message = "系统分类不允许修改" });
+
                 // 验证权限
                 var isFamilyMember = await _context.FamilyMembers
                     .AnyAsync(fm => fm.UserId == userId && fm.FamilyId == category.FamilyId && fm.Status == "active");
@@ -257,6 +261,10 @@ namespace FamilyBillSystem.Controllers
                 if (category == null || category.DeletedAt != null)
                     return NotFound("分类不存在");
 
+                // 系统分类不允许删除
+                if (category.FamilyId == null)
+                    return BadRequest(new { message = "系统分类不允许删除" });
+
                 // 验证权限
                 var isFamilyMember = await _context.FamilyMembers
                     .AnyAsync(fm => fm.UserId == userId && fm.FamilyId == category.FamilyId && fm.Status == "active");
@@ -264,12 +272,36 @@ namespace FamilyBillSystem.Controllers
                 if (!isFamilyMember)
                     return Forbid("您没有权限删除此分类");
 
-                // 检查是否有账单使用此分类
-                var hasBills = await _context.Bills
-                    .AnyAsync(b => b.CategoryId == id && b.DeletedAt == null);
+                // 查找使用此分类的账单
+                var bills = await _context.Bills
+                    .Where(b => b.CategoryId == id && b.DeletedAt == null)
+                    .ToListAsync();
 
-                if (hasBills)
-                    return BadRequest("该分类下还有账单记录，无法删除");
+                if (bills.Any())
+                {
+                    // 找到对应类型的“其他”系统分类
+                    var isExpense = category.Type == "expense";
+                    var otherName = isExpense ? "其他支出" : "其他收入";
+
+                    var fallbackCategory = await _context.Categories
+                        .FirstOrDefaultAsync(c =>
+                            c.FamilyId == null &&
+                            c.Type == category.Type &&
+                            c.Name == otherName &&
+                            c.DeletedAt == null);
+
+                    if (fallbackCategory == null)
+                    {
+                        return BadRequest(new { message = "系统分类中未找到“其他”分类，无法自动迁移账单" });
+                    }
+
+                    // 将账单迁移到“其他”分类
+                    foreach (var bill in bills)
+                    {
+                        bill.CategoryId = fallbackCategory.Id;
+                        bill.UpdatedAt = DateTime.Now;
+                    }
+                }
 
                 // 软删除
                 category.DeletedAt = DateTime.Now;

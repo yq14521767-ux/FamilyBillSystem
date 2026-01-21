@@ -79,7 +79,6 @@ namespace FamilyBillSystem.Services
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     Email = $"wechat_{DateTime.Now:yyyyMMddHHmmss}@wechat.com",
-                    Settings = "{}",
                     Phone = "",
                     LastLoginAt = DateTime.Now,
                     LoginCount = 1
@@ -128,7 +127,6 @@ namespace FamilyBillSystem.Services
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 AvatarUrl = "/images/user.png", // 使用前端路径的默认头像
-                Settings = "{}", // 添加默认设置
                 Phone = "", // 添加空手机号
                 OpenId = null, // 添加空OpenId
                 Gender = null, // 添加空性别

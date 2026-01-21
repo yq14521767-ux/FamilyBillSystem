@@ -22,9 +22,6 @@ namespace FamilyBillSystem.Models
         [Column(TypeName = "varchar(50)")]
         public string Role { get; set; } = "member"; //角色，管理员/成员
 
-        [Column(TypeName = "text")]
-        public string Permissions { get; set; } = "{}";  //权限
-
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string Nickname { get; set; }  //家庭中的昵称
@@ -47,12 +44,5 @@ namespace FamilyBillSystem.Models
         [JsonIgnore]
         public virtual User User { get; set; }
 
-        // 处理权限 JSON 的辅助方法
-        [NotMapped]
-        public JsonDocument PermissionsJson
-        {
-            get => JsonDocument.Parse(string.IsNullOrEmpty(Permissions) ? "{}" : Permissions);
-            set => Permissions = value != null ? JsonSerializer.Serialize(value) : "{}";
-        }
     }
 }

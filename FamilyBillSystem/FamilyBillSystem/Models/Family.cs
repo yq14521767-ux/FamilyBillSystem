@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FamilyBillSystem.Interfaces;
+using FamilyBillSystem.Services;
 
 namespace FamilyBillSystem.Models
 {
@@ -26,15 +26,12 @@ namespace FamilyBillSystem.Models
         [Required]
         public int CreatorId { get; set; }  //创建者Id
 
-        [Required]
-        [Column(TypeName = "varchar(50)")]
-        public string BudgetCycle { get; set; } = "monthly";  //预算周期，月，季，年
+        //[Required]
+        //[Column(TypeName = "varchar(50)")]
+        //public string BudgetCycle { get; set; } = "monthly";  //预算周期，月，季，年
 
         [Column(TypeName = "int")]
         public int? MemberLimit { get; set; } = 10;  //成员数量
-
-        [Column(TypeName = "text")]
-        public string Settings { get; set; } = "{}";  //家庭设置
 
         [Required]
         [Column(TypeName = "varchar(50)")]
@@ -66,12 +63,5 @@ namespace FamilyBillSystem.Models
         
         public virtual FamilyStats Stats { get; set; }
 
-        // 处理设置 JSON 的辅助方法
-        [NotMapped]
-        public JsonDocument SettingsJson
-        {
-            get => JsonDocument.Parse(string.IsNullOrEmpty(Settings) ? "{}" : Settings);
-            set => Settings = value != null ? JsonSerializer.Serialize(value) : "{}";
-        }
     }
 }

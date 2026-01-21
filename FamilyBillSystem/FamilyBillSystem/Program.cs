@@ -123,7 +123,9 @@ namespace FamilyBillSystem
             
             // 使用自定义JWT中间件
             app.UseMiddleware<CustomJwtMiddleware>();
-            
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+            app.UseMiddleware<RateLimitingMiddleware>();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

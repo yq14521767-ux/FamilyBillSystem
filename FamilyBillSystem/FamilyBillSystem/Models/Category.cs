@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using FamilyBillSystem.Interfaces;
+using FamilyBillSystem.Services;
 
 namespace FamilyBillSystem.Models
 {
@@ -34,13 +34,10 @@ namespace FamilyBillSystem.Models
         [Column(TypeName = "int")]
         public int SortOrder { get; set; } = 0;  //排序序号
 
-        [Column(TypeName = "tinyint(1)")]
-        public bool IsSystem { get; set; } = false;  //是否系统默认分类
+        // [Column(TypeName = "tinyint(1)")]
+        // public bool IsSystem { get; set; } = false;  //是否系统默认分类
 
         public int? FamilyId { get; set; } //所属家庭Id
-
-        [Column(TypeName = "text")]
-        public string? Description { get; set; }  //描述
 
         [Required]
         [Column(TypeName = "varchar(50)")]

@@ -29,6 +29,28 @@
   color: #999999;
 }
 
+/* 周期切换标签 */
+.period-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16rpx;
+}
+
+.period-tab {
+  padding: 8rpx 20rpx;
+  margin: 0 8rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #666666;
+  border: 1rpx solid #e0e0e0;
+}
+
+.period-tab.active {
+  background-color: #4CAF50;
+  color: #ffffff;
+  border-color: #4CAF50;
+}
+
 /* 家庭选择器 */
 .family-selector {
   margin: 0 0 10rpx;

@@ -6,6 +6,11 @@
       <text class="time-text">{{timeText}}</text>
       <text class="time-arrow">▼</text>
     </view>
+    <view class="period-tabs">
+      <view class="period-tab {{selectedPeriod === 'monthly' ? 'active' : ''}}" data-period="monthly" bindtap="onPeriodTabTap">月度</view>
+      <view class="period-tab {{selectedPeriod === 'quarterly' ? 'active' : ''}}" data-period="quarterly" bindtap="onPeriodTabTap">季度</view>
+      <view class="period-tab {{selectedPeriod === 'yearly' ? 'active' : ''}}" data-period="yearly" bindtap="onPeriodTabTap">年度</view>
+    </view>
     <view class="family-selector" wx:if="{{families.length > 0}}">
       <picker mode="selector" range="{{families}}" range-key="name" value="{{selectedFamilyIndex}}" bindchange="onFamilyChange">
         <view class="family-display">
@@ -96,9 +101,15 @@
       <picker-view-column>
         <view wx:for="{{years}}" wx:key="*this" class="picker-item">{{item}}年</view>
       </picker-view-column>
-      <picker-view-column>
+      <!-- 月度：按月份选择 -->
+      <picker-view-column wx:if="{{selectedPeriod === 'monthly'}}">
         <view wx:for="{{months}}" wx:key="*this" class="picker-item">{{item}}月</view>
       </picker-view-column>
+      <!-- 季度：按季度选择（第1-4季度），内部仍使用每个季度的起始月份 1/4/7/10 -->
+      <picker-view-column wx:elif="{{selectedPeriod === 'quarterly'}}">
+        <view wx:for="{{quarters}}" wx:key="*this" class="picker-item">第{{index + 1}}季度</view>
+      </picker-view-column>
+      <!-- 年度：只按年份选择，此处不再增加第二列 -->
     </picker-view>
     <view class="modal-footer">
       <button class="btn btn-secondary" bindtap="hideTimePicker">取消</button>
@@ -134,6 +145,14 @@
       <view class="input-group">
         <text class="input-label">预算金额</text>
         <input class="input-field" type="digit" placeholder="请输入预算金额" value="{{budgetForm.amount}}" bindinput="onBudgetAmountInput" />
+      </view>
+      <view class="input-group">
+        <text class="input-label">预算周期</text>
+        <view class="period-tabs">
+          <view class="period-tab {{selectedPeriod === 'monthly' ? 'active' : ''}}" data-period="monthly" bindtap="onPeriodTabTap">月度</view>
+          <view class="period-tab {{selectedPeriod === 'quarterly' ? 'active' : ''}}" data-period="quarterly" bindtap="onPeriodTabTap">季度</view>
+          <view class="period-tab {{selectedPeriod === 'yearly' ? 'active' : ''}}" data-period="yearly" bindtap="onPeriodTabTap">年度</view>
+        </view>
       </view>
       
       <view class="input-group">

@@ -1,4 +1,4 @@
-namespace FamilyBillSystem.Interfaces
+namespace FamilyBillSystem.Services
 {
     public interface ISoftDeletable
     {
