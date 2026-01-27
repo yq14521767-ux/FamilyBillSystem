@@ -106,8 +106,14 @@ namespace FamilyBillSystem
             // Token验证中间件
             app.Use(async (context, next) =>
             {
+                if (context.Request.Path.StartsWithSegments("/api/auth/refresh-token"))
+                {
+                    await next(); // 直接跳过，不检查格式
+                    return;
+                }
+
                 var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
                     var tokenPart = authHeader.Substring(7);
                     var parts = tokenPart.Split('.');

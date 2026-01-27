@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FamilyBillSystem.Services
@@ -36,10 +37,7 @@ namespace FamilyBillSystem.Services
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == request.Email && u.DeletedAt == null);
 
-            if (user == null)
-                throw new Exception("邮箱或密码错误");
-
-            if (!PasswordHelper.VerifyPW(request.Password, user.PasswordHash, user.PasswordSalt))
+            if (user == null || !PasswordHelper.VerifyPW(request.Password, user.PasswordHash, user.PasswordSalt))
                 throw new Exception("邮箱或密码错误");
 
             if (user.Status == "frozen")
@@ -47,8 +45,14 @@ namespace FamilyBillSystem.Services
 
             await UpdateLoginInfo(user);
 
-            var accessToken = GenerateJwtToken(user, false);
-            var refreshToken = GenerateJwtToken(user, true);
+            var accessToken = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            // 关键：保存到数据库
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpireAt = DateTime.UtcNow.AddDays(
+                Convert.ToDouble(_configuration["Jwt:RefreshTokenExpireDays"] ?? "7"));
+            await _context.SaveChangesAsync();
 
             return new AuthResponse
             {
@@ -61,7 +65,6 @@ namespace FamilyBillSystem.Services
         public async Task<AuthResponse> WeChatLogin(WeChatLoginRequest request)
         {
             var openId = await GetWeChatOpenId(request.Code);
-
             if (string.IsNullOrEmpty(openId))
                 throw new Exception("获取微信用户信息失败");
 
@@ -83,19 +86,22 @@ namespace FamilyBillSystem.Services
                     LastLoginAt = DateTime.Now,
                     LoginCount = 1
                 };
-
                 _context.Users.Add(user);
-                await _context.SaveChangesAsync(); // 立即保存新用户
+                await _context.SaveChangesAsync();
             }
             else
             {
-                // 对于已存在的用户，不自动覆盖其自定义的昵称和头像
-                // 只更新登录信息
                 await UpdateLoginInfo(user);
             }
 
-            var accessToken = GenerateJwtToken(user, false);
-            var refreshToken = GenerateJwtToken(user, true);
+            var accessToken = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            // 保存 RefreshToken
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpireAt = DateTime.UtcNow.AddDays(
+                Convert.ToDouble(_configuration["Jwt:RefreshTokenExpireDays"] ?? "7"));
+            await _context.SaveChangesAsync();
 
             return new AuthResponse
             {
@@ -137,8 +143,13 @@ namespace FamilyBillSystem.Services
             _context.Users.Add(user);
             await UpdateLoginInfo(user);
 
-            var accessToken = GenerateJwtToken(user, false);
-            var refreshToken = GenerateJwtToken(user, true);
+            var accessToken = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpireAt = DateTime.UtcNow.AddDays(
+                Convert.ToDouble(_configuration["Jwt:RefreshTokenExpireDays"] ?? "7"));
+            await _context.SaveChangesAsync();
 
             return new AuthResponse
             {
@@ -171,31 +182,36 @@ namespace FamilyBillSystem.Services
             }
         }
 
-        private string GenerateJwtToken(User user, bool isRefreshToken = false)
+        // 生成随机 Refresh Token
+        private string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes)
+                .TrimEnd('=')           // 去掉 = 填充
+                .Replace('+', '-')      // URL 安全
+                .Replace('/', '_');
+        }
+
+        private string GenerateJwtToken(User user)
         {
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key未配置"));
 
-                // 使用标准Claims，确保与JWT中间件配置一致
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim("type", isRefreshToken ? "refresh" : "access"),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                };
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim("type", "access"),  // 固定为 access
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Email, user.Email ?? ""),
+            new Claim(ClaimTypes.Name, user.Nickname ?? ""),
+            new Claim("uid", user.Id.ToString())
+        };
 
-                // 只在AccessToken中添加用户信息
-                if (!isRefreshToken)
-                {
-                    claims.Add(new Claim(ClaimTypes.Email, user.Email ?? ""));
-                    claims.Add(new Claim(ClaimTypes.Name, user.Nickname ?? ""));
-                    claims.Add(new Claim("uid", user.Id.ToString())); // 保留自定义claim以兼容现有代码
-                }
-
-                // Access Token: 2小时，Refresh Token: 7天
-                var expiryMinutes = isRefreshToken ? 10080 : 120; // 延长AccessToken到2小时
+                var expiryMinutes = Convert.ToDouble(_configuration["Jwt:AccessTokenExpireMinutes"] ?? "120");
 
                 var now = DateTime.UtcNow;
                 var expires = now.AddMinutes(expiryMinutes);
@@ -215,21 +231,21 @@ namespace FamilyBillSystem.Services
                 var securityToken = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(securityToken);
 
-                // 验证Token格式和完整性
+                // 保留格式验证（可选，但建议保留）
                 var parts = tokenString.Split('.');
                 if (parts.Length != 3)
                 {
-                    _logger.LogError($"JWT Token格式错误: 部分数={parts.Length}, Token={tokenString}");
+                    _logger.LogError($"JWT Token格式错误: 部分数={parts.Length}");
                     throw new InvalidOperationException("JWT Token格式错误");
                 }
 
-                _logger.LogInformation($"生成{(isRefreshToken ? "Refresh" : "Access")}Token: 用户ID={user.Id}, 长度={tokenString.Length}, 部分={parts[0].Length}.{parts[1].Length}.{parts[2].Length}");
+                _logger.LogInformation($"生成AccessToken: 用户ID={user.Id}, 长度={tokenString.Length}");
 
                 return tokenString;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"生成JWT Token失败: 用户ID={user.Id}, isRefresh={isRefreshToken}");
+                _logger.LogError(ex, "生成AccessToken失败");
                 throw;
             }
         }
@@ -425,106 +441,36 @@ namespace FamilyBillSystem.Services
 
         public async Task<AuthResponse> RefreshToken(RefreshTokenRequest request)
         {
-            try
+            if (string.IsNullOrEmpty(request.RefreshToken))
+                throw new Exception("RefreshToken不能为空");
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken &&
+                                         u.RefreshTokenExpireAt > DateTime.UtcNow &&
+                                         u.DeletedAt == null);
+
+            if (user == null)
+                throw new Exception("Refresh Token 无效或已过期，请重新登录");
+
+            if (user.Status == "frozen")
+                throw new Exception("账户已被冻结");
+
+            var newAccessToken = GenerateJwtToken(user);
+            var newRefreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpireAt = DateTime.UtcNow.AddDays(
+                Convert.ToDouble(_configuration["Jwt:RefreshTokenExpireDays"] ?? "7"));
+
+            await _context.SaveChangesAsync();
+
+            return new AuthResponse
             {
-                if (string.IsNullOrEmpty(request.RefreshToken))
-                {
-                    _logger.LogWarning("RefreshToken为空");
-                    throw new Exception("RefreshToken不能为空");
-                }
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key未配置"));
-
-                // 检查Token格式
-                var parts = request.RefreshToken.Split('.');
-                if (parts.Length != 3)
-                {
-                    _logger.LogWarning($"RefreshToken格式错误: 部分数={parts.Length}");
-                    throw new Exception("RefreshToken格式无效");
-                }
-
-                _logger.LogInformation($"验证RefreshToken: 长度={request.RefreshToken.Length}, 部分={parts[0].Length}.{parts[1].Length}.{parts[2].Length}");
-
-                // 验证 Refresh Token
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _configuration["Jwt:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = _configuration["Jwt:Audience"],
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromMinutes(5)
-                };
-
-                SecurityToken validatedToken;
-                ClaimsPrincipal principal;
-
-                try
-                {
-                    principal = tokenHandler.ValidateToken(request.RefreshToken, validationParameters, out validatedToken);
-                }
-                catch (SecurityTokenExpiredException ex)
-                {
-                    _logger.LogWarning(ex, "RefreshToken已过期");
-                    throw new Exception("Refresh Token 已过期，请重新登录");
-                }
-                catch (SecurityTokenException ex)
-                {
-                    _logger.LogError(ex, "RefreshToken验证失败: {Message}", ex.Message);
-                    throw new Exception("RefreshToken无效，请重新登录");
-                }
-
-                // 验证是否为 Refresh Token
-                var tokenTypeClaim = principal.FindFirst("type")?.Value;
-                if (tokenTypeClaim != "refresh")
-                {
-                    _logger.LogWarning($"Token类型错误: {tokenTypeClaim}");
-                    throw new Exception("无效的 Refresh Token");
-                }
-
-                // 获取用户ID - 优先使用标准claim，回退到自定义claim
-                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? principal.FindFirst("uid")?.Value;
-                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                {
-                    _logger.LogWarning($"用户ID无效: {userIdClaim}");
-                    throw new Exception("无效的用户信息");
-                }
-
-                // 查找用户
-                var user = await _context.Users.FindAsync(userId);
-                if (user == null || user.DeletedAt != null)
-                {
-                    _logger.LogWarning($"用户不存在: {userId}");
-                    throw new Exception("用户不存在");
-                }
-
-                if (user.Status == "frozen")
-                {
-                    _logger.LogWarning($"用户账户被冻结: {userId}");
-                    throw new Exception("账户已被冻结");
-                }
-
-                // 生成新的 Access Token 和 Refresh Token
-                var newAccessToken = GenerateJwtToken(user, false);
-                var newRefreshToken = GenerateJwtToken(user, true);
-
-                _logger.LogInformation($"用户 {user.Id} Token刷新成功");
-
-                return new AuthResponse
-                {
-                    Token = newAccessToken,
-                    RefreshToken = newRefreshToken,
-                    User = MapToUserDto(user)
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "刷新Token失败: {Message}", ex.Message);
-                throw new Exception("刷新Token失败，请重新登录");
-            }
+                Token = newAccessToken,
+                RefreshToken = newRefreshToken,
+                User = MapToUserDto(user)
+            };
         }
+
     }
 }

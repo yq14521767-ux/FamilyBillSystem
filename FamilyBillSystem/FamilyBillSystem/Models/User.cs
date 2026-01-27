@@ -64,6 +64,11 @@ namespace FamilyBillSystem.Models
         [Column(TypeName = "datetime")]
         public DateTime? DeletedAt { get; set; }  //删除时间
 
+        public string? RefreshToken { get; set; } // 当前有效的 Refresh Token（随机字符串）
+
+        [Column(TypeName = "datetime")]
+        public DateTime? RefreshTokenExpireAt { get; set; } // UTC 时间
+
         //导航属性
         [JsonIgnore]
         public virtual ICollection<Family> CreatedFamilies { get; set; } = new List<Family>();

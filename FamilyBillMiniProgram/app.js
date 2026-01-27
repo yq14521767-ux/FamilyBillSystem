@@ -178,7 +178,7 @@ App({
             }
           }
         }, 100);
-        
+  
         // 最多等待10秒
         setTimeout(() => {
           clearInterval(checkInterval);
@@ -186,22 +186,27 @@ App({
         }, 10000);
       });
     }
-
+  
     this.globalData.isRefreshingToken = true;
-    
+  
     try {
-      const refreshToken = this.globalData.refreshToken;
-      
+      const refreshToken = this.globalData.refreshToken || wx.getStorageSync('refreshToken');
+  
+      this.log.info('开始刷新Token', {
+        hasGlobalRefreshToken: !!this.globalData.refreshToken,
+        hasStoredRefreshToken: !!wx.getStorageSync('refreshToken')
+      });
+  
       if (!refreshToken) {
         throw new Error('RefreshToken不存在，请重新登录');
       }
-
-      // 检查RefreshToken格式
-      const parts = refreshToken.split('.');
-      if (parts.length !== 3) {
-        throw new Error('RefreshToken格式错误');
-      }
-
+  
+      // 显示加载提示（可选，但提升体验）
+      wx.showLoading({
+        title: '正在刷新登录...',
+        mask: true
+      });
+  
       const refreshRes = await new Promise((resolve, reject) => {
         wx.request({
           url: `${this.globalData.baseUrl}/auth/refresh-token`,
@@ -209,31 +214,58 @@ App({
           data: { refreshToken },
           header: { 'Content-Type': 'application/json' },
           success: (res) => {
-            if (res.statusCode === 200 && res.data.token && res.data.refreshToken) {
+            this.log.info('刷新Token响应', {
+              statusCode: res.statusCode,
+              hasToken: !!res.data?.token
+            });
+  
+            if (res.statusCode === 200 && res.data?.token && res.data?.refreshToken) {
               resolve(res.data);
             } else {
-              reject(new Error(res.data?.message || '刷新Token失败'));
+              const errorMsg = res.data?.message || `刷新失败 (状态码: ${res.statusCode})`;
+              reject(new Error(errorMsg));
             }
           },
           fail: (err) => {
+            this.log.error('刷新Token网络错误', err);
             reject(new Error(err.errMsg || '网络请求失败'));
           }
         });
       });
-
-      // 更新Token
+  
+      // 更新全局数据和存储
       this.globalData.token = refreshRes.token;
       this.globalData.refreshToken = refreshRes.refreshToken;
       this.globalData.userInfo = refreshRes.user;
-      
+  
       wx.setStorageSync('token', refreshRes.token);
       wx.setStorageSync('refreshToken', refreshRes.refreshToken);
       wx.setStorageSync('userInfo', refreshRes.user);
-      
+  
+      this.log.info('Token刷新成功');
+  
+      // 刷新成功后隐藏 loading
+      wx.hideLoading();
+  
     } catch (err) {
       this.log.error('Token刷新失败', err);
+  
+      // 隐藏 loading
+      wx.hideLoading();
+  
+      // 友好提示用户
+      wx.showToast({
+        title: '登录已过期，请重新登录',
+        icon: 'none',
+        duration: 3000,
+        mask: true
+      });
+  
+      // 清空认证信息并跳转登录页
       this.clearAuthData();
-      throw err;
+      wx.reLaunch({ url: '/pages/login/login' });  // 直接 reLaunch 到登录页（推荐）
+  
+      throw err;  // 让上层捕获（如果有其他请求队列会 reject）
     } finally {
       this.globalData.isRefreshingToken = false;
     }
